@@ -1,0 +1,31 @@
+{
+    "general": {
+        "start_minimized": false,
+        "close_to_tray": true,
+        "launch_on_startup": false
+    },
+
+    "notifications": {
+        "enabled": true,
+        "sound": true,
+        "desktop_alerts": true
+    },
+
+    "ui": {
+        "theme": "dark"
+    },
+
+    "monitoring": {
+        "refresh_interval": 60,
+        "max_alerts": 1000
+    },
+
+    "detection":{
+        "ICMP":true,
+        "IP_changes": true,
+        "sniffer":true,
+        "nmap": true,
+        "new_port":true,
+        "beaconing": true
+    }
+}

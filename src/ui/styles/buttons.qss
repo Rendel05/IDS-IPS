@@ -1,0 +1,32 @@
+/*
+ * buttons - Qt Style Sheet
+ * Created: 6/9/2026
+ *
+ * QSS Toolkit Quick Tips:
+ * - Press Ctrl+Space (Cmd+Space) for intelligent auto-completion
+ * - Use Ctrl+/ (Cmd+/) to comment/uncomment code blocks
+ * - Use the QSS Colors panel and editor context menu to save or insert colors
+ */
+
+/* Add your QSS styles here */
+
+#standard_button{
+    background-color: transparent;
+    border: 1px solid $BORDER_COLOR;
+    color: $MUTED_TEXT;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+#standard_button:hover {
+    background-color: $HOVER;
+}
+
+#standard_button:pressed {
+    background-color: $PRESSED;
+}
+
+#standard_button{
+    padding: 3px 10px;
+}
+

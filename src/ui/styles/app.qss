@@ -1,0 +1,198 @@
+QWidget {
+    font-family:"Segoe UI";
+}
+
+#main {
+    background-color: $BG;
+}
+
+#sidebar {
+    border: 1px solid $BORDER_COLOR;
+    border-radius: 5px;
+}
+
+#name {
+    font-size: 30px;
+    font-weight: bold;
+    color: $PRIMARY_TEXT;
+}
+
+#description {
+    color: $MUTED_TEXT;
+}
+
+#sidebar QPushButton[class='sidebar-button'] {
+    background-color: transparent;
+    border: 1px solid $BORDER_COLOR;
+    color: $PRIMARY_TEXT;
+    border-radius: 5px;
+    min-height: 30px;
+    font-weight: bold;
+}
+
+#sidebar QPushButton[class='sidebar-button']:hover {
+    background-color: $HOVER;
+}
+
+#sidebar QPushButton[class='sidebar-button']:pressed {
+    background-color: $PRESSED;
+}
+
+#status {
+    border: 2px solid $BG;
+    border-color: $BORDER_COLOR $BG $BG $BG;
+}
+
+#status_icon {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#status_icon[status='online'] {
+    color: $SUCCESS;
+}
+
+#status_icon[status='offline'] {
+    color: $DANGER;
+}
+
+#status_title {
+    font-size: 14px;
+    font-weight: bold;
+    color: $PRIMARY_TEXT;
+}
+
+#status_description {
+    color: $MUTED_TEXT;
+}
+
+#content {
+    border: 1px solid $BORDER_COLOR;
+    border-radius: 5px;
+}
+
+QLabel {
+    color: $MUTED_TEXT;
+}
+QLabel[class ='content_title']{
+    font-size:16px;
+    font-weight:bold;
+    color: $PRIMARY_TEXT;
+}
+
+QLabel[class = 'content_subtitle']{
+    color: $MUTED_TEXT;
+    font-weight:bold;
+    font-size:13px;
+}
+
+QWidget[class = 'content_card']{
+    background-color: $SEC_BG;
+    border: 1px solid $BORDER_COLOR;
+    border-radius: 10px;
+}
+
+QLabel[class = 'card_title']{
+    font-size:12px;
+    color: $PRIMARY_TEXT;
+    font-weight:bold;
+}
+
+QLabel[class = 'card_number']{
+    font-size:30px;
+    font-weight:bold;
+}
+
+QLabel[class = 'card_percentage']{
+    font-size:12px;
+}
+
+QLabel[comparison = 'lower']{
+    color: $INFO;
+}
+
+QLabel[comparison = 'equal']{
+    color: $MUTED_TEXT;
+}
+
+QLabel[comparison = 'higher']{
+    color: $DANGER;
+}
+
+QTableWidget#recent_alerts_table{
+    background-color: $SEC_BG;
+
+    border-radius: 6px;
+    gridline-color: $BORDER_COLOR;
+    color: $PRIMARY_TEXT;
+    font-size: 12px;
+    outline: none;
+}
+
+QTableWidget#recent_alerts_table::item{
+    padding: 4px 8px;
+    border: none;
+    color: $PRIMARY_TEXT;
+}
+
+QTableWidget#recent_alerts_table::item:selected{
+    background-color: $BORDER_COLOR;
+    color: $PRIMARY_TEXT;
+}
+
+QTableWidget#recent_alerts_table::item:hover{
+    background-color: $BORDER_COLOR;
+}
+
+QHeaderView::section{
+    background-color: $BG;
+    color: $MUTED_TEXT;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border: none;
+}
+
+QHeaderView::section:last{
+    border-right: none;
+}
+
+QTableWidget#recent_alerts_table QTableCornerButton::section{
+    background-color: $BG;
+    border: none;
+}
+
+#about_page{
+    background-color: $SEC_BG;
+}
+
+QLineEdit {
+    color: $MUTED_TEXT;
+    background-color: $BG;
+}
+
+QComboBox{
+    color: $MUTED_TEXT;
+    background-color: $BG;
+}
+
+QMenu{
+    background: $BG;
+    color: $PRIMARY_TEXT;
+}
+
+QMenu::item {
+    padding: 8px 24px;
+}
+
+QMenu::item:selected {
+    background-color: $HOVER;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: $BORDER_COLOR;
+    margin: 4px 8px;
+}
+
+

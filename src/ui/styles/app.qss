@@ -23,7 +23,7 @@ QWidget {
 
 #sidebar QPushButton[class='sidebar-button'] {
     background-color: transparent;
-    border: 1px solid $BORDER_COLOR;
+
     color: $PRIMARY_TEXT;
     border-radius: 5px;
     min-height: 30px;
@@ -57,7 +57,7 @@ QWidget {
 }
 
 #status_title {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     color: $PRIMARY_TEXT;
 }
@@ -84,6 +84,11 @@ QLabel[class = 'content_subtitle']{
     color: $MUTED_TEXT;
     font-weight:bold;
     font-size:13px;
+}
+
+#chart_tag{
+    font-weight: bold;
+    color: $PRIMARY_TEXT;
 }
 
 QWidget[class = 'content_card']{
@@ -174,6 +179,13 @@ QLineEdit {
 QComboBox{
     color: $MUTED_TEXT;
     background-color: $BG;
+}
+QComboBox QAbstractItemView{
+    color: $MUTED_TEXT;
+}
+
+QCheckBox{
+    color: $MUTED_TEXT;
 }
 
 QMenu{

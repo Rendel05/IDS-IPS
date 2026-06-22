@@ -1,6 +1,6 @@
 from PySide6 import QtGui
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QStackedWidget
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QStackedWidget, QApplication
 from PySide6.QtCore import Qt
 
 from ui.pages.devices_page import DevicesPage
@@ -9,22 +9,30 @@ from ui.pages.alerts_page import AlertsPage
 from ui.pages.dashboard_page import DashboardPage
 from ui.pages.about_page import AboutPage
 from ui.pages.network_page import NetworkPage
+from services.icons_manager import IconManager
+from services.settings_manager import SettingsManager
 
+#default_values
 STATUS = 'Sistema activo'
 STATUS_DESCRIPTION = 'Monitoreo en ejecución'
 STATUS_ICON = 'online'
 
 
 class MainWindow(QWidget):
-    def __init__(self):
-        super().__init__()
 
+    def __init__(self, app: QApplication):
+        super().__init__()
         # Estilo básico general
         self.setWindowTitle("IDS/IPS")
         self.setWindowIcon(QtGui.QIcon('assets/node.png'))
         self.resize(1100, 730)
         self.setMinimumSize(1100, 730)
         self.setMaximumSize(1100, 730)
+        self.settings = SettingsManager()
+        self.theme= '#FFFFFF' if self.settings.get('ui','theme') == 'light' else "#13171f"
+        self.icon_manager = IconManager(self.settings)
+
+
 
         main_layout = QHBoxLayout()
         sidebar_layout = QVBoxLayout()
@@ -32,7 +40,7 @@ class MainWindow(QWidget):
         description_layout = QHBoxLayout()
 
         logo = QLabel()
-        pixmap = QPixmap('assets/shield.png')
+        pixmap = QPixmap('assets/node.png')
         pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo.setPixmap(pixmap)
 
@@ -56,62 +64,63 @@ class MainWindow(QWidget):
         subtitle.setLayout(description_layout)
         subtitle.setObjectName('subtitle')
 
+        self.dashboard_btn = QPushButton(' Dashboard')
+        self.dashboard_btn.setIcon(self.icon_manager.get('home'))
+        self.dashboard_btn.setProperty('class', 'sidebar-button')
 
+        self.alert_btn = QPushButton(' Alertas')
+        self.alert_btn.setIcon(self.icon_manager.get('alert'))
+        self.alert_btn.setProperty('class', 'sidebar-button')
 
-        dashboard_btn = QPushButton(' Dashboard')
-        dashboard_btn.setIcon(QtGui.QIcon('assets/home.svg'))
-        dashboard_btn.setProperty('class', 'sidebar-button')
+        self.network_btn = QPushButton(' Red')
+        self.network_btn.setIcon(self.icon_manager.get('network'))
+        self.network_btn.setProperty('class', 'sidebar-button')
 
-        alert_btn = QPushButton(' Alertas')
-        alert_btn.setIcon(QtGui.QIcon('assets/alert.svg'))
-        alert_btn.setProperty('class', 'sidebar-button')
+        self.devices_btn = QPushButton(" Periféricos")
+        self.devices_btn.setIcon(self.icon_manager.get('video-camera'))
+        self.devices_btn.setProperty('class', 'sidebar-button')
 
-        network_btn = QPushButton(' Red')
-        network_btn.setIcon(QtGui.QIcon('assets/network.svg'))
-        network_btn.setProperty('class', 'sidebar-button')
+        self.settings_btn = QPushButton(' Configuración')
+        self.settings_btn.setIcon(self.icon_manager.get('settings'))
+        self.settings_btn.setProperty('class', 'sidebar-button')
 
-        devices_btn = QPushButton(" Periféricos")
-        devices_btn.setIcon(QtGui.QIcon('assets/video-camera.svg'))
-        devices_btn.setProperty('class', 'sidebar-button')
-
-        settings_btn = QPushButton(' Configuración')
-        settings_btn.setIcon(QtGui.QIcon('assets/settings.svg'))
-        settings_btn.setProperty('class', 'sidebar-button')
-
-        about_btn = QPushButton(' Acerca de')
-        about_btn.setIcon(QtGui.QIcon('assets/information-circle.svg'))
-        about_btn.setProperty('class', 'sidebar-button')
+        self.about_btn = QPushButton(' Acerca de')
+        self.about_btn.setIcon(self.icon_manager.get('question-mark'))
+        self.about_btn.setProperty('class', 'sidebar-button')
 
         status_layout = QHBoxLayout()
+
         icon_status_layout = QHBoxLayout()
 
-        status_icon = QLabel('⏻')
-        status_icon.setAlignment(Qt.AlignCenter)
-        status_icon.setObjectName('status_icon')
-        status_icon.setProperty("status", STATUS_ICON)
+        self.status_icon = QLabel('⏻')
+        self.status_icon.setAlignment(Qt.AlignCenter)
+        self.status_icon.setObjectName('status_icon')
+        self.status_icon.setProperty("status", STATUS_ICON)
 
-        icon_status_layout.addWidget(status_icon)
+        icon_status_layout.addWidget(self.status_icon)
 
         icon_status = QWidget()
         icon_status.setFixedWidth(35)
         icon_status.setLayout(icon_status_layout)
+        icon_status.setContentsMargins(-10, 0, 0, 0)
 
         description_status_layout = QVBoxLayout()
 
-        status_title = QLabel(STATUS)
-        status_title.setWordWrap(True)
-        status_title.setObjectName('status_title')
+        self.status_title = QLabel(STATUS)
+        self.status_title.setWordWrap(True)
+        self.status_title.setObjectName('status_title')
 
-        description_status_layout.addWidget(status_title)
+        description_status_layout.addWidget(self.status_title)
 
-        status_description = QLabel(STATUS_DESCRIPTION)
-        status_description.setObjectName('status_description')
-        status_description.setWordWrap(True)
+        self.status_description = QLabel(STATUS_DESCRIPTION)
+        self.status_description.setObjectName('status_description')
+        self.status_description.setWordWrap(True)
 
-        description_status_layout.addWidget(status_description)
+        description_status_layout.addWidget(self.status_description)
 
         description_status = QWidget()
         description_status.setLayout(description_status_layout)
+        description_status.setContentsMargins(-10, 0, 0, 0)
 
         status_layout.addWidget(icon_status)
         status_layout.addWidget(description_status)
@@ -123,12 +132,12 @@ class MainWindow(QWidget):
 
         sidebar_layout.addWidget(title)
         sidebar_layout.addWidget(subtitle)
-        sidebar_layout.addWidget(dashboard_btn)
-        sidebar_layout.addWidget(alert_btn)
-        sidebar_layout.addWidget(network_btn)
-        sidebar_layout.addWidget(devices_btn)
-        sidebar_layout.addWidget(settings_btn)
-        sidebar_layout.addWidget(about_btn)
+        sidebar_layout.addWidget(self.dashboard_btn)
+        sidebar_layout.addWidget(self.alert_btn)
+        sidebar_layout.addWidget(self.network_btn)
+        sidebar_layout.addWidget(self.devices_btn)
+        sidebar_layout.addWidget(self.settings_btn)
+        sidebar_layout.addWidget(self.about_btn)
         sidebar_layout.addStretch()
         sidebar_layout.addWidget(status)
 
@@ -137,44 +146,51 @@ class MainWindow(QWidget):
         sidebar.setFixedWidth(200)
         sidebar.setObjectName('sidebar')
 
-        dashboard_page = DashboardPage()
-        about_page = AboutPage()
-        alerts_page = AlertsPage()
-        network_page = NetworkPage()
-        devices_page = DevicesPage()
-        settings_page = SettingsPage()
+        self.dashboard_page = DashboardPage(self.theme)
+        self.about_page = AboutPage()
+        self.alerts_page = AlertsPage()
+        self.network_page = NetworkPage()
+        self.devices_page = DevicesPage()
+        self.settings_page = SettingsPage(app)
+        self.settings_page.theme_changed.connect(
+            self.refresh_icons
+        )
+        self.settings_page.engine_paused.connect(
+            self.engine_status
+        )
 
         content = QStackedWidget()
-        content.addWidget(dashboard_page)
-        content.addWidget(about_page)
-        content.addWidget(alerts_page)
-        content.addWidget(network_page)
-        content.addWidget(devices_page)
-        content.addWidget(settings_page)
+        content.addWidget(self.dashboard_page)
+        content.addWidget(self.about_page)
+        content.addWidget(self.alerts_page)
+        content.addWidget(self.network_page)
+        content.addWidget(self.devices_page)
+        content.addWidget(self.settings_page)
         content.setObjectName('content')
 
-        dashboard_btn.clicked.connect(
-            lambda :content.setCurrentWidget(dashboard_page)
+
+        self.dashboard_btn.clicked.connect(
+            lambda :content.setCurrentWidget(self.dashboard_page)
         )
 
-        about_btn.clicked.connect(
-            lambda :content.setCurrentWidget(about_page)
+        self.about_btn.clicked.connect(
+            lambda :content.setCurrentWidget(self.about_page)
         )
 
-        alert_btn.clicked.connect(
-            lambda :content.setCurrentWidget(alerts_page)
+        self.alert_btn.clicked.connect(
+            lambda :content.setCurrentWidget(self.alerts_page)
         )
 
-        network_btn.clicked.connect(
-            lambda :content.setCurrentWidget(network_page)
+        self.network_btn.clicked.connect(
+            lambda :content.setCurrentWidget(self.network_page)
         )
 
-        devices_btn.clicked.connect(
-            lambda :content.setCurrentWidget(devices_page)
+        self.devices_btn.clicked.connect(
+            lambda :content.setCurrentWidget(self.devices_page)
         )
 
-        settings_btn.clicked.connect(
-            lambda :content.setCurrentWidget(settings_page)
+        self.settings_btn.clicked.connect(
+            lambda :content.setCurrentWidget(self.settings_page)
         )
 
         main_layout.addWidget(sidebar)
@@ -191,3 +207,33 @@ class MainWindow(QWidget):
     def closeEvent(self, event):
         event.ignore()
         self.hide()
+
+
+    def refresh_icons(self):
+        self.settings = SettingsManager()
+        self.icon_manager = IconManager(self.settings)
+        self.theme= '#FFFFFF' if self.settings.get('ui','theme') == 'light' else "#13171f"
+
+        self.dashboard_page.change_theme(self.theme)
+        self.about_page.change_theme()
+        self.alerts_page.change_theme()
+
+        self.dashboard_btn.setIcon(self.icon_manager.get('home'))
+        self.alert_btn.setIcon(self.icon_manager.get('alert'))
+        self.network_btn.setIcon(self.icon_manager.get('network'))
+        self.devices_btn.setIcon(self.icon_manager.get('video-camera'))
+        self.settings_btn.setIcon(self.icon_manager.get('settings'))
+        self.about_btn.setIcon(self.icon_manager.get('question-mark'))
+
+    def engine_status(self,value):
+        #values
+        title = 'Sistema en pausa' if value else 'Sistema activo'
+        description = 'Monitoreo suspendido' if value else 'Monitoreo en ejecución'
+        icon = 'offline' if value else 'online'
+
+        self.status_title.setText(title)
+        self.status_description.setText(description)
+        self.status_icon.setProperty('status', icon)
+        self.status_icon.style().unpolish(self.status_icon)
+        self.status_icon.style().polish(self.status_icon)
+        self.status_icon.update()

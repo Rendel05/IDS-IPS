@@ -48,8 +48,23 @@ class NetworkPage(QWidget):
         devices_layout = QVBoxLayout()
 
         rows_layout = QHBoxLayout()
+        test1 = QLabel()
+        pixmap2 = QPixmap('assets/unknow-device.svg')
+        test1.setPixmap(pixmap2)
+        rows_layout.addWidget(test1)
+        rows_layout.addWidget(QLabel("Dirección IP: 192.168.0.2"))
+        rows_layout.addWidget(QLabel('Dirección MAC: 00:00:07:AA:BB:CC'))
+        rows_layout.addWidget(QLabel('Dispositivo: Lenovo'))
+        rows_layout.addStretch()
+
+        rows = QWidget()
+        rows.setStyleSheet("""
+                    margin-right: 20px;
+                """)
+        rows.setLayout(rows_layout)
 
         devices_layout.addWidget(QLabel("Dispositivos en la red"))
+        devices_layout.addWidget(rows)
         devices = QWidget()
         devices.setLayout(devices_layout)
         devices.setProperty('class', 'content_card')

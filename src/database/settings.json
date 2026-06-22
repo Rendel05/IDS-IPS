@@ -1,31 +1,25 @@
 {
     "general": {
-        "start_minimized": false,
-        "close_to_tray": true,
-        "launch_on_startup": false
+        "launch_on_startup": true
     },
-
     "notifications": {
-        "enabled": true,
-        "sound": true,
-        "desktop_alerts": true
+        "enabled": false
     },
-
     "ui": {
         "theme": "dark"
     },
-
     "monitoring": {
-        "refresh_interval": 60,
-        "max_alerts": 1000
+        "refresh_interval_seconds": 60,
+        "max_alerts": 1000,
+        "on_paused": false
     },
-
-    "detection":{
-        "ICMP":true,
-        "IP_changes": true,
-        "sniffer":true,
-        "nmap": true,
-        "new_port":true,
-        "beaconing": true
+    "detectors": {
+        "icmp_flood": true,
+        "ip_changes": true,
+        "packet_sniffer": true,
+        "nmap_scan": true,
+        "new_port": true,
+        "beaconing": true,
+        "new_device": true
     }
 }

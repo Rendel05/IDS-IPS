@@ -1,15 +1,19 @@
-from PySide6 import QtGui
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QComboBox, QPushButton, \
-    QTableWidget, QHeaderView
-from ui.components import button
+    QTableWidget, QHeaderView, QAbstractItemView
+
 from ui.components.button import standard_button
+from services.icons_manager import IconManager
+from services.settings_manager import SettingsManager
 
 
 class AlertsPage(QWidget):
     def __init__(self):
         super().__init__()
 
+
         layout = QVBoxLayout()
+        self.settings = SettingsManager()
+        self.icon_manager = IconManager(self.settings)
 
         title_layout = QVBoxLayout()
         title_label = QLabel("Alertas")
@@ -34,10 +38,9 @@ class AlertsPage(QWidget):
 
         text_search = QWidget()
         text_search.setLayout(text_search_layout)
-        text_search.setProperty( 'class', 'content_card' )
 
 
-        severity_options_layout = QHBoxLayout()
+        severity_options_layout = QVBoxLayout()
         severity_options = QComboBox()
         severity_options.addItem(" Todas",0)
         severity_options.addItem(" Baja", 1)
@@ -49,7 +52,6 @@ class AlertsPage(QWidget):
 
         severity_filter = QWidget()
         severity_filter.setLayout(severity_options_layout)
-        severity_filter.setProperty('class', 'content_card' )
 
 
         date_filter_layout = QHBoxLayout()
@@ -62,22 +64,27 @@ class AlertsPage(QWidget):
 
         date_filter = QWidget()
         date_filter.setLayout(date_filter_layout)
-        date_filter.setProperty('class', 'content_card' )
 
 
 
-        apply_filters_layout = QHBoxLayout()
-        search_button = standard_button("Aplicar flitros", "./assets/search.svg")
-        apply_filters_layout.addWidget(search_button)
+        self.search_button = standard_button("Aplicar flitros")
+        self.search_button.setIcon(self.icon_manager.get("search"))
+        self.delete_button = standard_button("Vaciar alertas")
+        self.delete_button.setIcon(self.icon_manager.get("trash"))
 
         filters_layout.addWidget(text_search)
         filters_layout.addWidget(severity_filter)
         filters_layout.addWidget(date_filter)
         filters_layout.addStretch()
-        filters_layout.addWidget(search_button)
+        filters_layout.addWidget(self.search_button)
+        filters_layout.addWidget(self.delete_button)
+
 
         filters = QWidget()
         filters.setLayout(filters_layout)
+        filters.setProperty('class', 'content_card')
+        filters.setContentsMargins(0,-10,0,-10)
+        filters.setMaximumHeight(40)
 
         #layout principal de contenido
         alerts_main_layout = QHBoxLayout()
@@ -87,9 +94,14 @@ class AlertsPage(QWidget):
         title_container.setProperty('class','card_title')
         alerts_list = QTableWidget()
         alerts_list.setColumnCount(4)
+        alerts_list.setRowCount(10)
         alerts_list.setHorizontalHeaderLabels(
             ['Hora','Severidad','Firma','Origen']
         )
+        alerts_list.setObjectName('recent_alerts_table')
+        alerts_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        alerts_list.setShowGrid(False)
+        alerts_list.verticalHeader().setVisible(False)
         alerts_list.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
 
@@ -116,6 +128,7 @@ class AlertsPage(QWidget):
         alerts_details.setLayout(alerts_details_layout)
         alerts_details.setProperty('class','content_card')
         alerts_details.setMinimumWidth(320)
+        alerts_details.setMinimumHeight(400)
 
 
         alerts_main_layout.addWidget(alerts_container)
@@ -134,3 +147,10 @@ class AlertsPage(QWidget):
 
 
         self.setLayout(layout)
+
+    def change_theme(self):
+
+        self.settings = SettingsManager()
+        self.icon_manager = IconManager(self.settings)
+        self.search_button.setIcon(self.icon_manager.get('search'))
+        self.delete_button.setIcon(self.icon_manager.get('trash'))

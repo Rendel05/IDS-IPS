@@ -1,9 +1,10 @@
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QGridLayout, QTableWidget, QTableWidgetItem, \
     QHeaderView, QAbstractItemView, QSizePolicy
-from PySide6.QtCore import Qt, QSize
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
+from PySide6.QtCore import Qt
+
+from ui.components.donut_chart import DonutChart
+from ui.components.donut_label import DonutLabel
 
 #int
 TOTAL_ALERTS = 0
@@ -37,10 +38,9 @@ def set_path(n):
 
 
 class DashboardPage(QWidget):
-    def __init__(self):
+    def __init__(self,theme):
         super().__init__()
-        layout = QGridLayout()
-
+        layout = QVBoxLayout()
         #--------Título y subtítulo
         title_layout = QVBoxLayout()
 
@@ -55,6 +55,8 @@ class DashboardPage(QWidget):
         title.setLayout(title_layout)
         title.setFixedHeight(70)
         #--------------
+
+        cards_layout = QGridLayout()
 
         #Layout de la tarjeta 'Alertas Totales'
         total_alerts_layout = QHBoxLayout()
@@ -94,7 +96,6 @@ class DashboardPage(QWidget):
         total_alerts = QWidget()
         total_alerts.setLayout(total_alerts_layout)
         total_alerts.setProperty('class','content_card')
-        #total_alerts.setFixedHeight(130)
         #--------------
 
 
@@ -178,50 +179,53 @@ class DashboardPage(QWidget):
         events = QWidget()
         events.setLayout(events_layout)
         events.setProperty('class', 'content_card')
-        #events.setFixedHeight(130)
+
+
+        cards_layout.addWidget(total_alerts,0,0)
+        cards_layout.addWidget(critics_alerts,0,1)
+        cards_layout.addWidget(events,0,2)
+
+        cards= QWidget()
+        cards.setLayout(cards_layout)
         #--------------
 
-        #Acá inician los organizadores gráficos
-        #Gráfica de pastel
-        circular_chart_layout = QVBoxLayout()
-
-        circular_chart_title = QLabel("Alertas por severidad")
-        circular_chart_title.setProperty('class', 'card_title')
-
-        chart1 = Figure()
-        canvas1 = FigureCanvasQTAgg(chart1)
-        canvas1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        canvas1.setMinimumSize(QSize(100, 100))
-
-        circular_chart_layout.addWidget(circular_chart_title)
-        circular_chart_layout.addWidget(canvas1)
-
-        circular_chart = QWidget()
-        circular_chart.setLayout(circular_chart_layout)
-        circular_chart.setProperty('class', 'content_card')
-        circular_chart.setFixedSize(278,220)
 
 
-        #Histograma en vivo
-        histogram_chart_layout = QVBoxLayout()
+        # Acá inician los organizadores gráficos
+        # Gráfica de toro
 
-        histogram_chart_title = QLabel('Volumen de descarga en vivo')
-        histogram_chart_title.setProperty('class', 'card_title')
+        charts_layout = QHBoxLayout()
 
-        chart2 = Figure()
-        canvas2 = FigureCanvasQTAgg(chart2)
-        canvas2.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        canvas2.setMinimumSize(QSize(100, 100))
+        donut_chart_layout = QVBoxLayout()
+        donut_chart_title = QLabel('Porcentaje de alertas')
+        donut_chart_title.setProperty('class', 'card_title')
+        donut_chart_content_layout = QHBoxLayout()
+        self.donut_chart = DonutChart(theme)
+        donut_labels = DonutLabel()
+        donut_chart_content_layout.addWidget(self.donut_chart)
+        donut_chart_content_layout.addWidget(donut_labels)
+        donut_chart_content=QWidget()
+        donut_chart_content.setLayout(donut_chart_content_layout)
+        donut_chart_layout.addWidget(donut_chart_title)
+        donut_chart_layout.addWidget(donut_chart_content)
 
-        histogram_chart_layout.addWidget(histogram_chart_title)
-        histogram_chart_layout.addWidget(canvas2)
+        donut_chart_widget = QWidget()
+        donut_chart_widget.setLayout(donut_chart_layout)
+        donut_chart_widget.setProperty('class', 'content_card')
 
-        histogram_chart = QWidget()
-        histogram_chart.setLayout(histogram_chart_layout)
-        histogram_chart.setProperty('class', 'content_card')
-        histogram_chart.setMaximumHeight(220)
 
-        #--------------
+        #----------------------------------------------- gráfica de línea
+        line_chart_layout = QVBoxLayout()
+        line_chart_widget = QWidget()
+        line_chart_widget.setLayout(line_chart_layout)
+        line_chart_widget.setProperty('class', 'content_card')
+
+
+        charts_layout.addWidget(donut_chart_widget, stretch=45)
+        charts_layout.addWidget(line_chart_widget, stretch=55)
+        charts = QWidget()
+        charts.setLayout(charts_layout)
+        # --------------
 
 
         #Sección de alertas recientes
@@ -252,20 +256,12 @@ class DashboardPage(QWidget):
 
 
         #--------------
-
-        layout.addWidget(title,0,0)
-
-        layout.addWidget(total_alerts,1,0)
-        layout.addWidget(critics_alerts,1,1)
-        layout.addWidget(events,1,2)
-
-        layout.addWidget(circular_chart,2,0,1,1)
-        layout.addWidget(histogram_chart,2,1,1,2)
-
-        layout.addWidget(recent_alerts,3,0,1,3)
-
-
+        layout.addWidget(title)
+        layout.addWidget(cards)
+        layout.addWidget(charts)
+        layout.addWidget(recent_alerts)
 
         self.setLayout(layout)
 
-#        circular_chart.setMinimumWidth(288)       circular_chart.setMaximumWidth(288)
+    def change_theme(self, new_theme):
+        self.donut_chart.update_theme(new_theme)

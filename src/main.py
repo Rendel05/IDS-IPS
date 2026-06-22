@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 from ui.main_page import MainWindow
 from ui.styles.loader import load_stylesheet
 from services.database_manager import DatabaseManager
+from services.settings_manager import SettingsManager
 
 
 
@@ -13,12 +14,15 @@ def main():
     app = QApplication(sys.argv)
     #instancia de la DB
     db = DatabaseManager()
+    settings = SettingsManager()
+
+    settings.set(False,"monitoring","on_paused")#Modo pausa siempre inicia como false
 
     app.setStyleSheet(
-        load_stylesheet()
+        load_stylesheet(settings.get('ui','theme'))
     )
 
-    window = MainWindow()
+    window = MainWindow(app)
 
     tray = QSystemTrayIcon(
         QIcon("assets/node.png"),
@@ -52,6 +56,7 @@ def main():
     exit_action.triggered.connect(
         QApplication.quit
     )
+
 
 
     tray_menu.addAction(show_action)

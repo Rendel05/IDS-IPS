@@ -2,13 +2,19 @@ from platform import system
 
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextBrowser, QTabWidget, QGridLayout
-from ui.components.badges import badges
 from PySide6.QtCore import Qt
+
+from ui.components.badges import badges
+from services.pixmaps_manager import PixMapManager
+from services.settings_manager import SettingsManager
+
 
 class AboutPage(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
+        self.settings= SettingsManager()
+        self.pixmap_manager= PixMapManager(self.settings)
 
         title_layout = QVBoxLayout()
         title_label = QLabel("Acerca de")
@@ -28,22 +34,20 @@ class AboutPage(QWidget):
         header_subtitle = QLabel('Sistema de detección de anomalías')
         version_badge = badges('Versión 2.0.0 ','medium')
         header_description =  QLabel('Aplicación desarrollada en Python con PySide6 para monitoreo de red y detección de actividades sospechosas en tiempo real.')
-        #header_description2 = QLabel('detectar actividades sospechosas en tiempo real.')
 
         header_layout.addWidget(header_title)
         header_layout.addWidget(header_subtitle)
         header_layout.addWidget(version_badge)
         header_layout.addWidget(header_description)
-        #header_layout.addWidget(header_description2)
 
         header_tabs_layout = QHBoxLayout()
 
         header_tab1_layout = QHBoxLayout()
 
-        code_icon = QLabel()
-        pixmap1 = QPixmap('assets/code.svg')
-        pixmap1.scaled(30,30,Qt.KeepAspectRatio,Qt.SmoothTransformation)
-        code_icon.setPixmap(pixmap1)
+        self.code_icon = QLabel()
+        self.pixmap1 = self.pixmap_manager.get('code')
+        self.pixmap1.scaled(30,30,Qt.KeepAspectRatio,Qt.SmoothTransformation)
+        self.code_icon.setPixmap(self.pixmap1)
 
         tab1_layout = QVBoxLayout()
         tab1_layout.addWidget(QLabel('Desarrollado con'))
@@ -51,7 +55,7 @@ class AboutPage(QWidget):
         tab1=QWidget()
         tab1.setLayout(tab1_layout)
 
-        header_tab1_layout.addWidget(code_icon)
+        header_tab1_layout.addWidget(self.code_icon)
         header_tab1_layout.addWidget(tab1)
 
         header_tab1 = QWidget()
@@ -60,10 +64,10 @@ class AboutPage(QWidget):
 
         header_tab2_layout = QHBoxLayout()
 
-        shield_icon = QLabel()
-        pixmap2 = QPixmap('assets/shield-check.svg')
-        pixmap2.scaled(30,30,Qt.KeepAspectRatio,Qt.SmoothTransformation)
-        shield_icon.setPixmap(pixmap2)
+        self.shield_icon = QLabel()
+        self.pixmap2 = self.pixmap_manager.get('shield-check')
+        self.pixmap2.scaled(30,30,Qt.KeepAspectRatio,Qt.SmoothTransformation)
+        self.shield_icon.setPixmap(self.pixmap2)
 
         tabs2_layout = QVBoxLayout()
         tabs2_layout.addWidget(QLabel('Propósito'))
@@ -71,7 +75,7 @@ class AboutPage(QWidget):
         tabs2=QWidget()
         tabs2.setLayout(tabs2_layout)
 
-        header_tab2_layout.addWidget(shield_icon)
+        header_tab2_layout.addWidget(self.shield_icon)
         header_tab2_layout.addWidget(tabs2)
 
         header_tab2 = QWidget()
@@ -79,10 +83,10 @@ class AboutPage(QWidget):
 
         header_tab3_layout = QHBoxLayout()
 
-        terminal_icon = QLabel()
-        pixmap3 = QPixmap('assets/terminal.svg')
-        pixmap3.scaled(30,30,Qt.KeepAspectRatio,Qt.SmoothTransformation)
-        terminal_icon.setPixmap(pixmap3)
+        self.terminal_icon = QLabel()
+        self.pixmap3 = self.pixmap_manager.get('terminal')
+        self.pixmap3.scaled(30,30,Qt.KeepAspectRatio,Qt.SmoothTransformation)
+        self.terminal_icon.setPixmap(self.pixmap3)
 
         tabs3_layout = QVBoxLayout()
         tabs3_layout.addWidget(QLabel('Plataforma'))
@@ -90,7 +94,7 @@ class AboutPage(QWidget):
         tabs3=QWidget()
         tabs3.setLayout(tabs3_layout)
 
-        header_tab3_layout.addWidget(terminal_icon)
+        header_tab3_layout.addWidget(self.terminal_icon)
         header_tab3_layout.addWidget(tabs3)
 
         header_tab3 = QWidget()
@@ -240,3 +244,12 @@ class AboutPage(QWidget):
         layout.addStretch()
         self.setLayout(layout)
 
+    def change_theme(self):
+        self.settings = SettingsManager()
+        self.pixmap_manager = PixMapManager(self.settings)
+        self.pixmap1 = self.pixmap_manager.get('code')
+        self.code_icon.setPixmap(self.pixmap1)
+        self.pixmap2 = self.pixmap_manager.get('shield-check')
+        self.shield_icon.setPixmap(self.pixmap2)
+        self.pixmap3 = self.pixmap_manager.get('terminal')
+        self.terminal_icon  .setPixmap(self.pixmap3)

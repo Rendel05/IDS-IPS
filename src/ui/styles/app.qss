@@ -91,7 +91,7 @@ QLabel[class = 'content_subtitle']{
     color: $PRIMARY_TEXT;
 }
 
-QWidget[class = 'content_card']{
+*[class = 'content_card']{
     background-color: $SEC_BG;
     border: 1px solid $BORDER_COLOR;
     border-radius: 10px;
@@ -137,7 +137,7 @@ QTableWidget#recent_alerts_table{
 QTableWidget#recent_alerts_table::item{
     padding: 4px 8px;
     border: none;
-    color: $PRIMARY_TEXT;
+    color: $MUTED_TEXT;
 }
 
 QTableWidget#recent_alerts_table::item:selected{

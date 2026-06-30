@@ -1,12 +1,15 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout
-from ui.pages.dashboard_page import set_path
+
+from services.settings_manager import SettingsManager
+from ui.components.device_card import DeviceCard
 
 
 class NetworkPage(QWidget):
     def __init__(self):
         super().__init__()
+        self.settings = SettingsManager()
 
         layout = QVBoxLayout()
         title_layout = QVBoxLayout()
@@ -47,24 +50,10 @@ class NetworkPage(QWidget):
 
         devices_layout = QVBoxLayout()
 
-        rows_layout = QHBoxLayout()
-        test1 = QLabel()
-        pixmap2 = QPixmap('assets/unknow-device.svg')
-        test1.setPixmap(pixmap2)
-        rows_layout.addWidget(test1)
-        rows_layout.addWidget(QLabel("Dirección IP: 192.168.0.2"))
-        rows_layout.addWidget(QLabel('Dirección MAC: 00:00:07:AA:BB:CC'))
-        rows_layout.addWidget(QLabel('Dispositivo: Lenovo'))
-        rows_layout.addStretch()
-
-        rows = QWidget()
-        rows.setStyleSheet("""
-                    margin-right: 20px;
-                """)
-        rows.setLayout(rows_layout)
+        self.row = DeviceCard('laptop','192.168.0.1','00:00:07:AA:BB:CC','Acer',self.settings)
 
         devices_layout.addWidget(QLabel("Dispositivos en la red"))
-        devices_layout.addWidget(rows)
+        devices_layout.addWidget(self.row)
         devices = QWidget()
         devices.setLayout(devices_layout)
         devices.setProperty('class', 'content_card')

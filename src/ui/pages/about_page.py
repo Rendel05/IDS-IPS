@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextBr
 from PySide6.QtCore import Qt
 
 from ui.components.badges import badges
+from ui.components.mini_badge import mini_badge
 from services.pixmaps_manager import PixMapManager
 from services.settings_manager import SettingsManager
 
@@ -32,7 +33,7 @@ class AboutPage(QWidget):
         header_title = QLabel('IDS/IPS')
         header_title.setProperty('class', 'content_title')
         header_subtitle = QLabel('Sistema de detección de anomalías')
-        version_badge = badges('Versión 2.0.0 ','medium')
+        version_badge = badges('Versión 2.0.0 ','media')
         header_description =  QLabel('Aplicación desarrollada en Python con PySide6 para monitoreo de red y detección de actividades sospechosas en tiempo real.')
 
         header_layout.addWidget(header_title)
@@ -214,12 +215,23 @@ class AboutPage(QWidget):
         credits_tabs5.setLayout(credits_tabs5_layout)
         credits_tabs5.setProperty('class','content_card')
 
+        credits_tabs6_layout = QHBoxLayout()
+        psutil_icon = QLabel()
+        pixmap_psutil = QPixmap('assets/psutil.svg')
+        psutil_icon.setPixmap(pixmap_psutil)
+        psutil_text=QLabel('Psutil')
+        credits_tabs6_layout.addWidget(psutil_icon)
+        credits_tabs6_layout.addWidget(psutil_text)
+        credits_tabs6=QWidget()
+        credits_tabs6.setLayout(credits_tabs6_layout)
+        credits_tabs6.setProperty('class','content_card')
 
         credits_tabs_layout.addWidget(credits_tabs1)
         credits_tabs_layout.addWidget(credits_tabs2)
         credits_tabs_layout.addWidget(credits_tabs3)
         credits_tabs_layout.addWidget(credits_tabs4)
         credits_tabs_layout.addWidget(credits_tabs5)
+        credits_tabs_layout.addWidget(credits_tabs6)
         credits_tabs_layout.addStretch()
         credits_tabs=QWidget()
         credits_tabs.setLayout(credits_tabs_layout)

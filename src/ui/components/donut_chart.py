@@ -3,6 +3,8 @@ from PySide6.QtWidgets import QSizePolicy
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.patches import Wedge
+
 
 
 class DonutChart(FigureCanvasQTAgg):
@@ -13,9 +15,11 @@ class DonutChart(FigureCanvasQTAgg):
         "#586B95",  # Baja
     ]
 
-    def __init__(self, theme):
+    def __init__(self, theme,values):
         self.theme = theme
-        self.current_values = [10, 20, 30, 40]
+        self.current_values = values
+        #self.current_values = [10,20,30,40]
+        self.text_color = '#5A6472' if self.theme == "dark" else "#99A2AB"
 
         self.figure = Figure(facecolor="none")
         super().__init__(self.figure)
@@ -26,6 +30,7 @@ class DonutChart(FigureCanvasQTAgg):
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         self.update_data(self.current_values)
+
 
     def sizeHint(self):
         return QSize(160, 160)
@@ -50,16 +55,31 @@ class DonutChart(FigureCanvasQTAgg):
         self.ax.set_facecolor("none")
         self.ax.axis("off")
 
-        self.ax.pie(
-            self.current_values,
-            colors=self.COLORS,
-            startangle=90,
-            counterclock=False,
-            wedgeprops={
-                "width": 0.35,
-                "linewidth": 2,
-                "edgecolor": self.theme,
-            },
-        )
+        if sum(values) == 0:
+            ring = Wedge(
+                center=(0, 0),
+                r=1.0,
+                theta1=0,
+                theta2=360,
+                width=0.35,
+                facecolor="#353535",
+                edgecolor=self.theme,
+                linewidth=2,
+            )
+            self.ax.add_patch(ring)
+            self.ax.set_xlim(-1.2, 1.2)
+            self.ax.set_ylim(-1.2, 1.2)
+        else:
+            self.ax.pie(
+                self.current_values,
+                colors=self.COLORS,
+                startangle=90,
+                counterclock=False,
+                wedgeprops={
+                    "width": 0.35,
+                    "linewidth": 2,
+                    "edgecolor": self.theme,
+                },
+            )
 
         self.draw_idle()

@@ -1,0 +1,95 @@
+
+QWidget#sweetAlertCard {
+    background-color: $BG;
+    border: 1px solid $BORDER_COLOR;
+    border-radius: 10px;
+}
+
+QLabel#sweetAlertTitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: $PRIMARY_TEXT;
+}
+
+QLabel#sweetAlertText {
+    font-size: 13px;
+    color: $MUTED_TEXT;
+}
+
+QLabel#sweetAlertIcon {
+    background: transparent;
+}
+
+QPushButton#sweetAlertConfirmButton {
+    background-color: $INFO;
+    color: $PRIMARY_TEXT;
+    border: none;
+    border-radius: 5px;
+    padding: 0 22px;
+    font-weight: bold;
+}
+
+QPushButton#sweetAlertConfirmButton[type="info"] {
+    background-color: $INFO;
+}
+
+QPushButton#sweetAlertConfirmButton[type="info"]:hover {
+    background-color: $INFO_HOVER;
+}
+
+QPushButton#sweetAlertConfirmButton[type="info"]:pressed {
+    background-color: $INFO_PRESSED;
+}
+
+QPushButton#sweetAlertConfirmButton[type="success"] {
+    background-color: $SUCCESS;
+}
+
+QPushButton#sweetAlertConfirmButton[type="success"]:hover {
+    background-color: $SUCCESS_HOVER;
+}
+
+QPushButton#sweetAlertConfirmButton[type="success"]:pressed {
+    background-color: $SUCCESS_PRESSED;
+}
+
+QPushButton#sweetAlertConfirmButton[type="warning"] {
+    background-color: $WARNING;
+}
+
+QPushButton#sweetAlertConfirmButton[type="warning"]:hover {
+    background-color: $WARNING_HOVER;
+}
+
+QPushButton#sweetAlertConfirmButton[type="warning"]:pressed {
+    background-color: $WARNING_PRESSED;
+}
+
+QPushButton#sweetAlertConfirmButton[type="danger"] {
+    background-color: $DANGER;
+}
+
+QPushButton#sweetAlertConfirmButton[type="danger"]:hover {
+    background-color: $DANGER_HOVER;
+}
+
+QPushButton#sweetAlertConfirmButton[type="danger"]:pressed {
+    background-color: $DANGER_PRESSED;
+}
+
+QPushButton#sweetAlertCancelButton {
+    background-color: transparent;
+    color: $MUTED_TEXT;
+    border: 1px solid $BORDER_COLOR;
+    border-radius: 5px;
+    padding: 0 22px;
+    font-weight: bold;
+}
+
+QPushButton#sweetAlertCancelButton:hover {
+    background-color: $HOVER;
+}
+
+QPushButton#sweetAlertCancelButton:pressed {
+    background-color: $PRESSED;
+}

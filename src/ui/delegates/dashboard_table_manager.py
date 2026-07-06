@@ -23,7 +23,7 @@ class TotalAlertsController:
         for row, record in enumerate(self.records["data"]):
             alert_id, timestamp, severity, rule, source = record
 
-            valid_rules = ("ICMP Flood", "Sniffer", "Nmap Scan", "Beaconing")
+            valid_rules = ("ICMP Flood", "Sniffer", "Port Scan", "Beaconing")
             real_source = source.split()[-1] if rule in valid_rules else "---"
 
             time_item = QTableWidgetItem(timestamp[11:19])

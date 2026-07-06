@@ -1,14 +1,16 @@
 from collections import defaultdict
 
+from services.toast_manager import show_toast
+
 
 class ICMPFloodDetector:
 
-    def __init__(self, settings=None, alert_callback=None):
+    def __init__(self, settings=None, alert_callback=None,updater=None):
         self.settings = settings
         self.alert_callback = alert_callback
-
         self.icmp_counter = defaultdict(list)
         self.active_alerts = set()
+        self.updater = updater
 
     def process(self, packet_info):
 
@@ -45,6 +47,8 @@ class ICMPFloodDetector:
                     category="ICMP Flood",
                     description=f"Inundación ICMP detectada desde {src_ip}"
                 )
+            self.updater.icmp_emit()
+            show_toast('Inundación ICMP',f"Inundación ICMP detectada desde {src_ip}")
 
     def _is_paused(self):
         return self.settings.get('monitoring','on_paused')

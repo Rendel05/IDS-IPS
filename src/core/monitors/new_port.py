@@ -1,6 +1,7 @@
 from threading import Thread, Event
-
 import psutil
+
+from services.toast_manager import show_toast
 
 WHITELIST = {
     "node.exe",
@@ -35,10 +36,12 @@ def _get_open_ports():
 
 class PortMonitor:
 
-    def __init__(self, settings=None, alert_callback=None, interval=10):
+    def __init__(self, settings=None, alert_callback=None,updater = None,interval=10):
         self.settings = settings
         self.alert_callback = alert_callback
         self.interval = interval
+        self.updater = updater
+
 
         self.known_ports = _get_open_ports()
 
@@ -91,12 +94,16 @@ class PortMonitor:
                 if process_name in WHITELIST:
                     continue
 
+
                 if self.alert_callback:
                     self.alert_callback(
-                        severity="Crítica",
+                        severity="Alta",
                         category="New Port Open",
                         description=f"Nuevo puerto local abierto detectado: {port} ({process_name})"
                     )
+                self.updater.port_emit()
+                show_toast('Puerto Local',f"Nuevo puerto local abierto detectado: {port} ({process_name})")
+
 
             self.known_ports = current_ports
             self._wait()
@@ -109,3 +116,4 @@ class PortMonitor:
 
     def _port_monitor_enabled(self):
         return self.settings.get("detectors", "new_port")
+

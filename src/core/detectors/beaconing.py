@@ -2,6 +2,9 @@ from collections import defaultdict, deque
 from ipaddress import ip_address
 from statistics import mean, pstdev
 
+from services.toast_manager import show_toast
+
+
 #Lista de IP comunes, si alguien retoma esto en el futuro que encuentre una forma más elegante de solucionar esto, Pedro M.
 
 IP_IGNORE_LIST = [
@@ -60,7 +63,11 @@ IP_IGNORE_LIST = [
     '142.250.115.188',
     '104.26.6.219',
     '192.178.56.42',
-    '192.178.52.234 '
+    '192.178.52.234 ',
+    '192.178.56.106',
+    '140.82.114.25',
+    '142.250.113.188',
+    '185.199.110.215'
 ]
 
 class BeaconDetector:
@@ -69,12 +76,14 @@ class BeaconDetector:
         self,
         settings=None,
         alert_callback=None,
+        updater = None,
         packet_threshold=8,
         max_deviation=0.5,
         alert_cooldown=900
     ):
         self.settings = settings
         self.alert_callback = alert_callback
+        self.updater = updater
 
         self.packet_threshold = packet_threshold
         self.max_deviation = max_deviation
@@ -149,8 +158,9 @@ class BeaconDetector:
         self.last_alert[flow] = current_time
 
         if self.alert_callback:
-            #testing
+            #testing, remove later
             print(
+                'BEACON |'
                 f"{destination_ip} | "
                 f"avg={average_interval:.2f} "
                 f"std={standard_deviation:.3f} "
@@ -164,6 +174,9 @@ class BeaconDetector:
                     f"Patrón de beaconing con un intervalo promedio de {average_interval:.2f}s detectado hacia {destination_ip} "
                 )
             )
+            self.updater.beacon_emit()
+            show_toast('Beacon',f"Patrón de beaconing detectado hacia {destination_ip}")
+
 
     def _is_paused(self):
         return self.settings.get(

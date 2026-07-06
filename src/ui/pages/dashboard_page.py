@@ -67,9 +67,9 @@ class DashboardPage(QWidget):
         donut_chart_title.setProperty('class', 'card_title')
         donut_chart_content_layout = QHBoxLayout()
         self.donut_chart = DonutChart(theme, self.db.get_chart_values())
-        donut_labels = DonutLabel(self.db.get_chart_values())
+        self.donut_labels = DonutLabel(self.db.get_chart_values())
         donut_chart_content_layout.addWidget(self.donut_chart)
-        donut_chart_content_layout.addWidget(donut_labels)
+        donut_chart_content_layout.addWidget(self.donut_labels)
         donut_chart_content=QWidget()
         donut_chart_content.setLayout(donut_chart_content_layout)
         donut_chart_layout.addWidget(donut_chart_title)
@@ -153,6 +153,18 @@ class DashboardPage(QWidget):
 
         self.setLayout(layout)
 
+
+
     def change_theme(self, new_theme):
         self.donut_chart.update_theme(new_theme)
         self.line_chart.update_theme(new_theme)
+
+    def refresh_data(self):
+        self.db = DatabaseManager()
+
+        self.total_alerts_controller.refresh(self.db.get_alert_summary())
+        self.critics_controller.refresh(self.db.get_alert_summary())
+        self.donut_chart.update_data(self.db.get_chart_values())
+        self.donut_labels.refresh(self.db.get_chart_values())
+        self.line_chart.update_data(self.db.get_alerts_per_hour())
+        self.alert_controller.refresh()

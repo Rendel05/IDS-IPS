@@ -46,7 +46,10 @@ class CriticsAlertsCard:
 
         self.refresh()
 
-    def refresh(self):
+    def refresh(self, new_data = None):
+
+        if new_data:
+            self.data = new_data
 
         diff = self.data['yesterday_high_critical'] - self.data['today_high_critical']
 
@@ -74,9 +77,13 @@ class CriticsAlertsCard:
         self.main_layout.addWidget(self.critics_alerts_chart)
 
         self.pixmap = QPixmap(path)
-        self.critics_alerts_number.setText(f'{self.data['today_high_critical']}')
+        self.critics_alerts_number.setText(f'{self.data['today_total']}')
         self.critics_alerts_number.setProperty('comparison', color)
+        self.critics_alerts_number.style().unpolish(self.critics_alerts_number)
+        self.critics_alerts_number.style().polish(self.critics_alerts_number)
         self.critics_alerts_percentage.setText(diff_label)
         self.critics_alerts_percentage.setProperty('comparison', color)
+        self.critics_alerts_percentage.style().unpolish(self.critics_alerts_percentage)
+        self.critics_alerts_percentage.style().polish(self.critics_alerts_percentage)
 
 

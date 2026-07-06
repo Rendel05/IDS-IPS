@@ -216,11 +216,13 @@ class DatabaseManager:
         return self.cursor.fetchone()
 
 
-    def delete_alert(self, alert_id):
-        with self.lock:
-            self.cursor.execute(
-                "DELETE FROM alerts WHERE id = ?",
-                (alert_id,))
+    def empty_alerts(self):
+        with (self.lock):
+            self.cursor.executescript("""
+            DELETE FROM alerts;
+            DELETE FROM sqlite_sequence
+            WHERE name = 'alerts';
+            """)
             self.connection.commit()
 
     def close(self):

@@ -1,5 +1,9 @@
 import socket
 from threading import Thread
+from time import sleep
+
+from services.toast_manager import show_toast
+
 
 
 def _get_current_ip():
@@ -19,10 +23,11 @@ def _get_current_ip():
 
 class IPMonitor:
 
-    def __init__(self, settings=None, alert_callback=None, interval=5):
+    def __init__(self, settings=None, alert_callback=None, updater = None,interval=5):
         self.settings = settings
         self.alert_callback = alert_callback
         self.interval = interval
+        self.updater = updater
 
         self.current_ip = None
 
@@ -87,12 +92,12 @@ class IPMonitor:
                     )
 
                 self.current_ip = ip_address
+                self.updater.ip_emit()
+                show_toast('Nueva IP', f"Cambio de IP detectado: {ip_address}")
 
             self._sleep()
 
     def _sleep(self):
-
-        from time import sleep
         sleep(self.interval)
 
     def _is_paused(self):

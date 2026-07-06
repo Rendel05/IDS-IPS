@@ -18,7 +18,7 @@ class RecentAlertsController:
         for row, record in enumerate(records):
             _, timestamp, severity, rule, source = record
 
-            valid_rules = ("ICMP Flood","Sniffer","Nmap Scan",'Beaconing')
+            valid_rules = ("ICMP Flood","Sniffer","Port Scan",'Beaconing')
             real_source = source.split()[-1] if rule in valid_rules else "---"
 
             self.table.setItem(

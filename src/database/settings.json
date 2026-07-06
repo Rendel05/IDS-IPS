@@ -3,7 +3,7 @@
         "launch_on_startup": true
     },
     "notifications": {
-        "enabled": false
+        "enabled": true
     },
     "ui": {
         "theme": "dark"

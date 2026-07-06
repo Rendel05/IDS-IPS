@@ -13,6 +13,7 @@ from ui.pages.network_page import NetworkPage
 from services.icons_manager import IconManager
 from services.settings_manager import SettingsManager
 
+
 #default_values
 STATUS = 'Sistema activo'
 STATUS_DESCRIPTION = 'Monitoreo en ejecución'
@@ -21,7 +22,7 @@ STATUS_ICON = 'online'
 
 class MainWindow(QWidget):
 
-    def __init__(self, app: QApplication, device_monitor: DeviceMonitor):
+    def __init__(self, app: QApplication, device_monitor: DeviceMonitor, updater):
         super().__init__()
         # Estilo básico general
         self.setWindowTitle("IDS/IPS")
@@ -150,6 +151,9 @@ class MainWindow(QWidget):
         self.dashboard_page = DashboardPage(self.theme)
         self.about_page = AboutPage()
         self.alerts_page = AlertsPage()
+        self.alerts_page.clean.connect(
+            lambda : self.dashboard_page.refresh_data()
+        )
         self.network_page = NetworkPage()
         self.devices_page = DevicesPage(device_monitor)
         self.settings_page = SettingsPage(app)
@@ -160,45 +164,57 @@ class MainWindow(QWidget):
             self.engine_status
         )
 
-        content = QStackedWidget()
-        content.addWidget(self.dashboard_page)
-        content.addWidget(self.about_page)
-        content.addWidget(self.alerts_page)
-        content.addWidget(self.network_page)
-        content.addWidget(self.devices_page)
-        content.addWidget(self.settings_page)
-        content.setObjectName('content')
+        self.content = QStackedWidget()
+        self.content.addWidget(self.dashboard_page)
+        self.content.addWidget(self.about_page)
+        self.content.addWidget(self.alerts_page)
+        self.content.addWidget(self.network_page)
+        self.content.addWidget(self.devices_page)
+        self.content.addWidget(self.settings_page)
+        self. content.setObjectName('content')
 
 
         self.dashboard_btn.clicked.connect(
-            lambda :content.setCurrentWidget(self.dashboard_page)
+            lambda :self.content.setCurrentWidget(self.dashboard_page)
         )
 
         self.about_btn.clicked.connect(
-            lambda :content.setCurrentWidget(self.about_page)
+            lambda :self.content.setCurrentWidget(self.about_page)
         )
 
         self.alert_btn.clicked.connect(
-            lambda :content.setCurrentWidget(self.alerts_page)
+            lambda :self.content.setCurrentWidget(self.alerts_page)
         )
 
         self.network_btn.clicked.connect(
-            lambda :content.setCurrentWidget(self.network_page)
+            lambda :self.content.setCurrentWidget(self.network_page)
         )
 
         self.devices_btn.clicked.connect(
-            lambda :content.setCurrentWidget(self.devices_page)
+            lambda :self.content.setCurrentWidget(self.devices_page)
         )
 
         self.settings_btn.clicked.connect(
-            lambda :content.setCurrentWidget(self.settings_page)
+            lambda :self.content.setCurrentWidget(self.settings_page)
         )
 
         main_layout.addWidget(sidebar)
-        main_layout.addWidget(content)
+        main_layout.addWidget(self.content)
 
         self.setLayout(main_layout)
         self.setObjectName('main')
+
+
+        for page in (self.dashboard_page, self.alerts_page):
+            updater.port_signal.connect(page.refresh_data)
+            updater.icmp_signal.connect(page.refresh_data)
+            updater.ip_signal.connect(page.refresh_data)
+            updater.scan_signal.connect(page.refresh_data)
+            updater.beacon_signal.connect(page.refresh_data)
+            updater.device_signal.connect(page.refresh_data)
+
+
+        #-------------------
 
     def show_from_tray(self):
         self.showNormal()
@@ -218,6 +234,7 @@ class MainWindow(QWidget):
         self.dashboard_page.change_theme(self.theme)
         self.about_page.change_theme()
         self.alerts_page.change_theme()
+        self.network_page.change_theme()
 
         self.dashboard_btn.setIcon(self.icon_manager.get('home'))
         self.alert_btn.setIcon(self.icon_manager.get('alert'))
@@ -238,3 +255,4 @@ class MainWindow(QWidget):
         self.status_icon.style().unpolish(self.status_icon)
         self.status_icon.style().polish(self.status_icon)
         self.status_icon.update()
+

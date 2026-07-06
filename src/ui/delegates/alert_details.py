@@ -18,7 +18,7 @@ class AlertDetails:
             "Revise los procesos activos y confirme que no exista software de captura no autorizado."
         ),
 
-        "Nmap Scan": (
+        "Port Scan": (
             "Se detectó actividad compatible con un escaneo de puertos. "
             "Compruebe el origen y determine si corresponde a una auditoría autorizada."
         ),
@@ -90,7 +90,7 @@ class AlertDetails:
             return
         data = DatabaseManager().get_alert_details(alert_id)
 
-        valid_rules = ("ICMP Flood", "Sniffer", "Nmap Scan", "Beaconing")
+        valid_rules = ("ICMP Flood", "Sniffer", "Port Scan", "Beaconing")
         real_source = data[4].split()[-1] if data[3] in valid_rules else "---"
 
 

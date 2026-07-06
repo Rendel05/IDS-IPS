@@ -1,9 +1,9 @@
 import threading
-import time
 import winreg
 from datetime import datetime, timedelta
 from time import sleep
 from pathlib import Path
+from services.toast_manager import show_toast
 
 
 def _filetime_to_datetime(filetime: int) -> datetime | None:
@@ -157,10 +157,11 @@ def _extract_device_info(
 
 class DeviceMonitor:
 
-    def __init__(self, settings=None, alert_callback=None, interval: int = 5):
+    def __init__(self, settings=None, alert_callback=None, updater = None,interval: int = 5):
         self.settings = settings
         self.alert_callback = alert_callback
         self.interval = interval
+        self.updater = updater
 
         self._snapshot: dict = {}
         self._devices: dict[str, list[dict]] = {"cam": [], "mic": []}  # ← NUEVO
@@ -333,8 +334,10 @@ class DeviceMonitor:
                 self._active_states[key] = is_active_now
                 if not (is_active_now and not was_active):
                     continue
+
                 if self.alert_callback:
-                    print('testing')
+
+
                     self.alert_callback(
                         severity="Media",
                         category="New Device",
@@ -344,6 +347,10 @@ class DeviceMonitor:
                             else f"La {label} fue activada por '{app}'."
                         ),
                     )
+                    self.updater.device_emit()
+                    show_toast('Nuevo Dispositivo',
+                               f'El {label} ha sido encendido'
+                               if label == 'micrófono' else f'La {label} ha sido encendida')
 
     def _sleep(self):
         sleep(self.interval)

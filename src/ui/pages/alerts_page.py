@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QSize, QSignalBlocker
+from PySide6.QtCore import Qt, QSize, QSignalBlocker, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QComboBox, \
     QTableWidget, QHeaderView, QAbstractItemView, QSizePolicy
 
@@ -8,11 +8,13 @@ from services.icons_manager import IconManager
 from services.settings_manager import SettingsManager
 from ui.delegates.dashboard_table_manager import TotalAlertsController
 from ui.delegates.alert_details import AlertDetails
+from ui.components.confirm_dialog import SweetAlert
 
 
 
 class AlertsPage(QWidget):
     PAGE_SIZE = 10
+    clean = Signal()
 
     def __init__(self):
         super().__init__()
@@ -96,6 +98,9 @@ class AlertsPage(QWidget):
         )
         self.delete_button = standard_button("Vaciar alertas")
         self.delete_button.setIcon(self.icon_manager.get("trash"))
+        self.delete_button.clicked.connect(
+            self.empty_alerts
+        )
 
         self.erase_filters = standard_button("Limpiar filtros")
         self.erase_filters.setIcon(self.icon_manager.get("eraser"))
@@ -200,12 +205,30 @@ class AlertsPage(QWidget):
         self.update_pagination_state()
 
 
+        self.updates_layout = QHBoxLayout()
+        self.updates_layout.addStretch()
+        updates_label = QLabel('Es posible que hayan alertas nuevas')
+        self.update_button = standard_button('')
+        self.update_button.setIcon(self.icon.get('arrow-path'))
+        self.update_button.setToolTip('Refrescar')
+        self.update_button.clicked.connect(
+            self.refresh_table
+        )
+        self.updates_layout.addWidget(updates_label)
+        self.updates_layout.addWidget(self.update_button)
+
+        self.updates = QWidget()
+        self.updates.setLayout(self.updates_layout)
+        self.updates.hide()
+
+
 
         self.paging_layout = QHBoxLayout()
         self.layout.addWidget(title)
         self.layout.addWidget(filters)
         self.layout.addWidget(alerts_main)
         self.layout.addWidget(self.paging)
+        self.layout.addWidget(self.updates)
         self.layout.addStretch()
 
 
@@ -220,6 +243,7 @@ class AlertsPage(QWidget):
         self.delete_button.setIcon(self.icon_manager.get('trash'))
         self.prev_page.setIcon(self.icon_manager.get('arrow-left-circle'))
         self.next_page.setIcon(self.icon_manager.get('arrow-right-circle'))
+        self.update_button.setIcon(self.icon_manager.get('arrow-path'))
 
     def get_current_filters(self):
         return {
@@ -258,6 +282,8 @@ class AlertsPage(QWidget):
             return
 
         self.load_alerts_page(target_page)
+        self.updates.hide()
+
 
     def on_alert_selected(self):
         row = self.alerts_table.currentRow()
@@ -271,6 +297,7 @@ class AlertsPage(QWidget):
 
     def add_filters(self):
         self.load_alerts_page(1)
+        self.updates.hide()
 
     def reset_filters_handler(self):
         if self.search_area.text().strip() != '' or self.severity_options.currentIndex() != 0 or self.date_options.currentIndex() != 0:
@@ -290,3 +317,30 @@ class AlertsPage(QWidget):
 
         self.load_alerts_page(1)
         self.reset_filters_handler()
+        self.updates.hide()
+
+
+    def empty_alerts(self):
+        confirmed = SweetAlert.confirm(
+            parent=self,
+            title='¿Eliminar todos los registros?',
+            text='Esta acción no se puede deshacer',
+            icon='warning',
+        )
+        if confirmed:
+            self.db.empty_alerts()
+
+            self.alerts_details.hide()
+            self.reset_filters()
+
+            SweetAlert.alert(self, title="Listo", text="Registros eliminados", icon="success")
+            self.clean.emit()
+            self.updates.hide()
+
+    def refresh_data(self):
+        self.updates.show()
+
+    def refresh_table(self):
+        self.alerts_details.hide()
+        self.reset_filters()
+        self.updates.hide()

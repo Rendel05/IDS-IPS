@@ -3,6 +3,7 @@ import sys
 from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 
+from services.global_updater import GlobalUpdater
 from ui.main_page import MainWindow
 from ui.styles.loader import load_stylesheet
 from services.database_manager import DatabaseManager
@@ -16,6 +17,7 @@ from core.monitors.dhcp_change import IPMonitor
 from core.monitors.new_port import PortMonitor
 from core.detectors.beaconing import BeaconDetector
 from core.monitors.new_device import DeviceMonitor
+from core.detectors.port_scan import ScanDetector
 
 
 
@@ -30,21 +32,24 @@ def main():
 
     alert_service = AlertManager(db)
 
-    dhcp_monitor = IPMonitor(settings, alert_service.create_alert)
-    ports_monitor = PortMonitor(settings,alert_service.create_alert)
-    device_monitor = DeviceMonitor(settings, alert_service.create_alert)
+    updater = GlobalUpdater()
+
+    dhcp_monitor = IPMonitor(settings, alert_service.create_alert,updater)
+    ports_monitor = PortMonitor(settings,alert_service.create_alert,updater)
+    device_monitor = DeviceMonitor(settings, alert_service.create_alert,updater)
     device_monitor.start()
 
 
-
-    icmp_detector = ICMPFloodDetector(settings, alert_service.create_alert)
-    beacon_detector = BeaconDetector(settings, alert_service.create_alert)
+    icmp_detector = ICMPFloodDetector(settings, alert_service.create_alert,updater)
+    beacon_detector = BeaconDetector(settings, alert_service.create_alert,updater)
+    port_scan_detector = ScanDetector(settings, alert_service.create_alert,updater)
 
 
     detection_engine = DetectionEngine(
         detectors=[
             icmp_detector,
-            beacon_detector
+            beacon_detector,
+            port_scan_detector
         ]
     )
 
@@ -55,8 +60,8 @@ def main():
     app.setStyleSheet(
         load_stylesheet(settings.get('ui','theme'))
     )
-
-    window = MainWindow(app,device_monitor)
+    #--------------------MAIN WINDOW------------------------#
+    window = MainWindow(app,device_monitor,updater)
 
     tray = QSystemTrayIcon(
         QIcon("assets/node.png"),
@@ -92,7 +97,6 @@ def main():
     )
 
 
-
     tray_menu.addAction(show_action)
     tray_menu.addSeparator()
     tray_menu.addAction(exit_action)
@@ -119,6 +123,8 @@ def main():
     app.aboutToQuit.connect(cleanup)
 
     sys.exit(app.exec())
+
+
 
 if __name__ == "__main__":
     main()

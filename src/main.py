@@ -113,6 +113,7 @@ def main():
     ports_monitor.start()
 
 
+
     def cleanup():
         packet_capture.stop()
         db.close()

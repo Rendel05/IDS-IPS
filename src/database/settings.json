@@ -6,7 +6,7 @@
         "enabled": true
     },
     "ui": {
-        "theme": "dark"
+        "theme": "light"
     },
     "monitoring": {
         "refresh_interval_seconds": 60,

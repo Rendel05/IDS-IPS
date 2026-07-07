@@ -115,7 +115,7 @@ class BeaconDetector:
         except ValueError:
             return
 
-        if destination_ip in IP_IGNORE_LIST:
+        if destination_ip in IP_IGNORE_LIST: #Una lista de IP hardcodeada
             return
 
 

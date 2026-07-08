@@ -3,7 +3,6 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QStackedWidget, QApplication
 from PySide6.QtCore import Qt
 
-from core.monitors.new_device import DeviceMonitor
 from ui.pages.devices_page import DevicesPage
 from ui.pages.settings_page import SettingsPage
 from ui.pages.alerts_page import AlertsPage
@@ -22,7 +21,7 @@ STATUS_ICON = 'online'
 
 class MainWindow(QWidget):
 
-    def __init__(self, app: QApplication, device_monitor: DeviceMonitor, updater):
+    def __init__(self, app):
         super().__init__()
         # Estilo básico general
         self.setWindowTitle("IDS/IPS")
@@ -33,6 +32,7 @@ class MainWindow(QWidget):
         self.settings = SettingsManager()
         self.theme= '#FFFFFF' if self.settings.get('ui','theme') == 'light' else "#13171f"
         self.icon_manager = IconManager(self.settings)
+        self.app = app
 
 
 
@@ -155,8 +155,11 @@ class MainWindow(QWidget):
             lambda : self.dashboard_page.refresh_data()
         )
         self.network_page = NetworkPage()
-        self.devices_page = DevicesPage(device_monitor)
-        self.settings_page = SettingsPage(app)
+        self.devices_page = DevicesPage(self.app.device_monitor)
+        self.app.updater.device_signal.connect(
+            self.devices_page.refresh
+        )
+        self.settings_page = SettingsPage(self.app)
         self.settings_page.theme_changed.connect(
             self.refresh_icons
         )
@@ -206,12 +209,12 @@ class MainWindow(QWidget):
 
 
         for page in (self.dashboard_page, self.alerts_page):
-            updater.port_signal.connect(page.refresh_data)
-            updater.icmp_signal.connect(page.refresh_data)
-            updater.ip_signal.connect(page.refresh_data)
-            updater.scan_signal.connect(page.refresh_data)
-            updater.beacon_signal.connect(page.refresh_data)
-            updater.device_signal.connect(page.refresh_data)
+            self.app.updater.port_signal.connect(page.refresh_data)
+            self.app.updater.icmp_signal.connect(page.refresh_data)
+            self.app.updater.ip_signal.connect(page.refresh_data)
+            self.app.updater.scan_signal.connect(page.refresh_data)
+            self.app.updater.beacon_signal.connect(page.refresh_data)
+            self.app.updater.device_signal.connect(page.refresh_data)
 
 
         #-------------------

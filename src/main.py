@@ -21,110 +21,196 @@ from core.detectors.port_scan import ScanDetector
 
 
 
-def main():
-    app = QApplication(sys.argv)
+class Application:
 
-    #Instancia de la DB y del JSON de configuración
-    db = DatabaseManager()
-    settings = SettingsManager()
+    def __init__(self, qt_app: QApplication):
+        self.qt_app = qt_app
 
-    settings.set(False,"monitoring","on_paused")
+        # ----------------- Services -----------------
 
-    alert_service = AlertManager(db)
+        self.db = DatabaseManager()
+        self.settings = SettingsManager()
 
-    updater = GlobalUpdater()
+        self.settings.set(False, "monitoring", "on_paused")
 
-    dhcp_monitor = IPMonitor(settings, alert_service.create_alert,updater)
-    ports_monitor = PortMonitor(settings,alert_service.create_alert,updater)
-    device_monitor = DeviceMonitor(settings, alert_service.create_alert,updater)
-    device_monitor.start()
+        self.alert_service = AlertManager(self.db)
 
+        self.updater = GlobalUpdater()
 
-    icmp_detector = ICMPFloodDetector(settings, alert_service.create_alert,updater)
-    beacon_detector = BeaconDetector(settings, alert_service.create_alert,updater)
-    port_scan_detector = ScanDetector(settings, alert_service.create_alert,updater)
+        # ----------------- Monitors  -----------------
 
+        self.dhcp_monitor = IPMonitor(
+            self.settings,
+            self.alert_service.create_alert,
+            self.updater
+        )
 
-    detection_engine = DetectionEngine(
-        detectors=[
-            icmp_detector,
-            beacon_detector,
-            port_scan_detector
+        self.ports_monitor = PortMonitor(
+            self.settings,
+            self.alert_service.create_alert,
+            self.updater
+        )
+
+        self.device_monitor = DeviceMonitor(
+            self.settings,
+            self.alert_service.create_alert,
+            self.updater
+        )
+
+        self.monitors = [
+            self.dhcp_monitor,
+            self.ports_monitor,
+            self.device_monitor
         ]
-    )
 
-    packet_capture = PacketCapture(
-        detection_engine.process
-    )
+        # ----------------- Detectores -----------------
 
-    app.setStyleSheet(
-        load_stylesheet(settings.get('ui','theme'))
-    )
-    #--------------------MAIN WINDOW------------------------#
-    window = MainWindow(app,device_monitor,updater)
+        self.icmp_detector = ICMPFloodDetector(
+            self.settings,
+            self.alert_service.create_alert,
+            self.updater
+        )
 
-    tray = QSystemTrayIcon(
-        QIcon("assets/node.png"),
-        window
-    )
+        self.beacon_detector = BeaconDetector(
+            self.settings,
+            self.alert_service.create_alert,
+            self.updater
+        )
 
-    def handle_tray_activation(reason):
+        self.port_scan_detector = ScanDetector(
+            self.settings,
+            self.alert_service.create_alert,
+            self.updater
+        )
+
+        self.detectors = [
+            self.icmp_detector,
+            self.beacon_detector,
+            self.port_scan_detector
+        ]
+
+        self.detection_engine = DetectionEngine(
+            detectors=self.detectors
+        )
+
+        self.packet_capture = PacketCapture(
+            self.detection_engine.process
+        )
+
+        # ----------------- UI -----------------
+
+        self.qt_app.setStyleSheet(
+            load_stylesheet(
+                self.settings.get("ui", "theme")
+            )
+        )
+
+        self.window = MainWindow(
+            self
+        )
+
+        self.setup_tray()
+
+        self.qt_app.aboutToQuit.connect(
+            self.cleanup
+        )
+
+    # ------------------------------------------------
+
+    def setup_tray(self):
+
+        self.tray = QSystemTrayIcon(
+            QIcon("assets/node.png"),
+            self.window
+        )
+
+        self.tray.activated.connect(
+            self.handle_tray_activation
+        )
+
+        menu = QMenu()
+
+        show_action = QAction(
+            "Mostrar ventana",
+            self.window
+        )
+
+        exit_action = QAction(
+            "Salir",
+            self.window
+        )
+
+        show_action.triggered.connect(
+            self.window.show_from_tray
+        )
+
+        exit_action.triggered.connect(
+            QApplication.quit
+        )
+
+        menu.addAction(show_action)
+        menu.addSeparator()
+        menu.addAction(exit_action)
+
+        self.tray.setContextMenu(menu)
+        self.tray.show()
+
+    # ------------------------------------------------
+
+    def handle_tray_activation(self, reason):
+
         if reason == QSystemTrayIcon.Trigger:
-            window.show_from_tray()
+            self.window.show_from_tray()
 
-    tray.activated.connect(
-        handle_tray_activation
-    )
+    # ------------------------------------------------
 
-    tray_menu = QMenu()
+    def start(self):
 
-    show_action = QAction(
-        "Mostrar ventana",
-        window
-    )
+        self.window.show()
 
-    exit_action = QAction(
-        "Salir",
-        window
-    )
+        self.packet_capture.start()
 
-    show_action.triggered.connect(
-        window.show_from_tray
-    )
+        for monitor in self.monitors:
+            monitor.start()
 
-    exit_action.triggered.connect(
-        QApplication.quit
-    )
+    # ------------------------------------------------
 
+    def stop(self):
 
-    tray_menu.addAction(show_action)
-    tray_menu.addSeparator()
-    tray_menu.addAction(exit_action)
+        self.packet_capture.stop()
 
-    tray.setContextMenu(tray_menu)
+        for monitor in self.monitors:
+            monitor.stop()
 
-    tray.show()
+    # ------------------------------------------------
 
-    window.show()
+    def restart_monitoring(self):
 
-    #Iniciar detectores y monitores
-    packet_capture.start()
-    dhcp_monitor.start()
-    ports_monitor.start()
+        self.stop()
 
+        # Aquí después podrás reconstruir detectores,
+        # packet capture, engine, etc.
+
+        self.start()
+
+    # ------------------------------------------------
+
+    def cleanup(self):
+
+        self.stop()
+
+        self.db.close()
 
 
-    def cleanup():
-        packet_capture.stop()
-        db.close()
-        dhcp_monitor.stop()
-        ports_monitor.stop()
-        device_monitor.stop()
+def main():
 
-    app.aboutToQuit.connect(cleanup)
+    qt_app = QApplication(sys.argv)
 
-    sys.exit(app.exec())
+    application = Application(qt_app)
 
+    application.start()
+
+    sys.exit(qt_app.exec())
 
 
 if __name__ == "__main__":

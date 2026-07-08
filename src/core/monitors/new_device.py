@@ -164,7 +164,7 @@ class DeviceMonitor:
         self.updater = updater
 
         self._snapshot: dict = {}
-        self._devices: dict[str, list[dict]] = {"cam": [], "mic": []}  # ← NUEVO
+        self._devices: dict[str, list[dict]] = {"cam": [], "mic": []}
         self._active_states: dict = {}
         self._lock = threading.Lock()
 
@@ -178,7 +178,7 @@ class DeviceMonitor:
         snapshot = self._build_snapshot()
         devices = self._build_device_list()
 
-        print("It's running")
+
         with self._lock:
             self._snapshot = snapshot
             self._devices = devices
@@ -201,7 +201,6 @@ class DeviceMonitor:
             return dict(self._snapshot)
 
     def get_devices(self) -> dict[str, list[dict]]:
-
         with self._lock:
             return {k: list(v) for k, v in self._devices.items()}
 
@@ -227,8 +226,6 @@ class DeviceMonitor:
             "cam": _read_device_names_by_class(_DEVICE_CLASS_GUIDS["cam"]),
             "mic": _read_device_names_by_class(_DEVICE_CLASS_GUIDS["mic"]),
         }
-
-
 
     def _read_registry_entries(self, prefix: str) -> list[dict]:
         path = _REGISTRY_PATHS[prefix]

@@ -14,7 +14,7 @@ class SettingsPage(QWidget):
     theme_changed = Signal()
     engine_paused = Signal(bool)
 
-    def __init__(self, app: QApplication):
+    def __init__(self, app):
         super().__init__()
 
         self.app = app
@@ -216,6 +216,6 @@ class SettingsPage(QWidget):
         )
 
         if self.app is not None:
-            self.app.setStyleSheet(load_stylesheet(theme))
+            self.app.qt_app.setStyleSheet(load_stylesheet(theme))
 
         self.theme_changed.emit()

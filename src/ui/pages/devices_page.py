@@ -2,15 +2,12 @@ from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QTableWidget, QAbstr
     QSizePolicy, QHBoxLayout
 
 from ui.delegates.device_table_manager import DeviceMonitor
-from services.pixmaps_manager import PixMapManager
 from ui.delegates.physic_devices import PhysicCard
 
 
 class DevicesPage(QWidget):
     def __init__(self,device_monitor):
         super().__init__()
-
-
 
         layout = QVBoxLayout()
 
@@ -21,6 +18,8 @@ class DevicesPage(QWidget):
         title_description.setProperty('class', 'content_subtitle')
         title_layout.addWidget(title_label)
         title_layout.addWidget(title_description)
+        self.device_monitor = device_monitor
+        self.device_monitor.start()
 
         title = QWidget()
         title.setLayout(title_layout)
@@ -32,7 +31,7 @@ class DevicesPage(QWidget):
         self.cameras_devices_title = QLabel('Cámaras detectadas')
         self.cameras_devices_title.setProperty('class', 'card_title')
         self.cameras_devices_layout.addWidget(self.cameras_devices_title)
-        self.device_list = PhysicCard('cam',device_monitor, self.cameras_devices_layout)
+        self.device_list = PhysicCard('cam',self.device_monitor, self.cameras_devices_layout)
         self.cameras_devices = QWidget()
         self.cameras_devices.setLayout(self.cameras_devices_layout)
         self.cameras_devices.setProperty('class', 'content_card')
@@ -42,7 +41,7 @@ class DevicesPage(QWidget):
         self.microphones_devices_title = QLabel('Micrófonos detectados')
         self.microphones_devices_title.setProperty('class', 'card_title')
         self.microphones_devices_layout.addWidget(self.microphones_devices_title)
-        self.device_list = PhysicCard('mic',device_monitor, self.microphones_devices_layout)
+        self.device_list = PhysicCard('mic',self.device_monitor, self.microphones_devices_layout)
 
         self.microphones_devices = QWidget()
         self.microphones_devices.setLayout(self.microphones_devices_layout)
@@ -78,7 +77,7 @@ class DevicesPage(QWidget):
         self.device_table.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.device_table.setObjectName('recent_alerts_table')
 
-        self.table_manager = DeviceMonitor(self.device_table, device_monitor)
+        self.table_manager = DeviceMonitor(self.device_table, self.device_monitor)
         self.table_manager.refresh()
 
 
@@ -98,5 +97,9 @@ class DevicesPage(QWidget):
         layout.addWidget(main_table)
 
         self.setLayout(layout)
+
+    def refresh(self):
+        self.table_manager.refresh()
+        return
 
 

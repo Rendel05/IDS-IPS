@@ -1,3 +1,5 @@
+import os
+import subprocess
 import sys
 
 from PySide6.QtGui import QIcon, QAction
@@ -165,7 +167,7 @@ class Application:
     # ------------------------------------------------
 
     def start(self):
-
+        print("It's running")
         self.window.show()
 
         self.packet_capture.start()
@@ -176,7 +178,7 @@ class Application:
     # ------------------------------------------------
 
     def stop(self):
-
+        print('shit')
         self.packet_capture.stop()
 
         for monitor in self.monitors:
@@ -184,16 +186,10 @@ class Application:
 
     # ------------------------------------------------
 
-    def restart_monitoring(self):
-
-        self.stop()
-
-        # Aquí después podrás reconstruir detectores,
-        # packet capture, engine, etc.
-
-        self.start()
-
-    # ------------------------------------------------
+    def restart_app(self):
+        print('Fuck it')
+        subprocess.Popen([sys.executable, *sys.argv])
+        QApplication.quit()
 
     def cleanup(self):
 

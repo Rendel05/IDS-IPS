@@ -329,25 +329,39 @@ class DeviceMonitor:
                 is_active_now = "ACTIVE" in state
                 was_active = self._active_states.get(key, False)
                 self._active_states[key] = is_active_now
-                if not (is_active_now and not was_active):
+                turned_on = is_active_now and not was_active
+                turned_off = was_active and not is_active_now
+                if not (turned_on or turned_off):
                     continue
 
-                if self.alert_callback:
-
-
-                    self.alert_callback(
-                        severity="Media",
-                        category="New Device",
-                        description=(
-                            f"El {label} fue activado por '{app}'."
-                            if label == "micrófono"
-                            else f"La {label} fue activada por '{app}'."
-                        ),
-                    )
+                if turned_off:
                     self.updater.device_emit()
-                    show_toast('Nuevo Dispositivo',
-                               f'El {label} ha sido encendido'
-                               if label == 'micrófono' else f'La {label} ha sido encendida')
+                    continue
+
+                if not self.alert_callback:
+                    continue
+
+                description = (
+                    f"El {label} fue activado por '{app}'."
+                    if label == "micrófono"
+                    else f"La {label} fue activada por '{app}'."
+                )
+                toast_title = 'Nuevo Dispositivo'
+                toast_msg = (
+                    f'El {label} ha sido encendido'
+                    if label == 'micrófono'
+                    else f'La {label} ha sido encendida'
+                )
+                category = "New Device"
+
+                self.alert_callback(
+                    severity="Media",
+                    category=category,
+                    description=description,
+                )
+                self.updater.device_emit()
+                show_toast(toast_title, toast_msg)
+
 
     def _sleep(self):
         sleep(self.interval)

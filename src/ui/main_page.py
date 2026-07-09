@@ -166,6 +166,13 @@ class MainWindow(QWidget):
         self.settings_page.engine_paused.connect(
             self.engine_status
         )
+        self.settings_page.engine_paused.connect(
+            self.engine_paused
+        )
+
+        self.settings_page.restart_detectors.connect(
+            self.restart_app
+        )
 
         self.content = QStackedWidget()
         self.content.addWidget(self.dashboard_page)
@@ -259,3 +266,12 @@ class MainWindow(QWidget):
         self.status_icon.style().polish(self.status_icon)
         self.status_icon.update()
 
+    def engine_paused(self,value):
+        if value:
+            self.app.stop()
+        else:
+            self.app.start()
+
+    def restart_app(self,value):
+        if value:
+            self.app.restart_app()

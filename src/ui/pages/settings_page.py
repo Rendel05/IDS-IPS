@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox, QComboBox, QHBoxLayout, QApplication
 from PySide6.QtCore import Signal
 
+from services.icons_manager import IconManager
 from ui.components.button import standard_button
 
 from services.settings_manager import SettingsManager
@@ -13,12 +14,14 @@ from ui.components.confirm_dialog import SweetAlert
 class SettingsPage(QWidget):
     theme_changed = Signal()
     engine_paused = Signal(bool)
+    restart_detectors = Signal(bool)
 
     def __init__(self, app):
         super().__init__()
 
         self.app = app
         self.settings = SettingsManager()
+        self.icon_manager = IconManager(self.settings)
 
         layout = QVBoxLayout()
 
@@ -65,6 +68,18 @@ class SettingsPage(QWidget):
         self.device = QCheckBox('Dispositivo activado')
         self.device.setChecked(self.settings.get('detectors', 'new_device'))
         self.bind_checkbox(self.device, 'detectors', 'new_device')
+
+        self.options = [self.icmp, self.ip_change, self.sniffer, self.nmap, self.new_port, self.beaconing, self.device]
+        self.values = []
+
+        for option in self.options:
+            self.values.append(1 if option.isChecked() else 0)
+
+        for option in self.options:
+            option.toggled.connect(
+                lambda checked : self.compare_changes()
+            )
+
 
         filters_layout.addWidget(filters_title)
         filters_layout.addWidget(filters_description)
@@ -136,17 +151,19 @@ class SettingsPage(QWidget):
         miscellaneous.setProperty('class', 'content_card')
 
         self.restart_layout = QHBoxLayout()
-        self.restart_label = QLabel('Los cambios requieren reiniciar el sistema')
-        self.restart_button = standard_button("Reiniciar ahora")
+        self.restart_label = QLabel('Los cambios requieren reiniciar la aplicación')
+        self.restart_button = standard_button("")
+        self.restart_button.setIcon(self.icon_manager.get('arrow-path'))
+        self.restart_button.setToolTip('Reiniciar ahora')
         self.restart_button.clicked.connect(
-            lambda : print(
-                'Ac[a va a ir la l[ogica del reinicio, no tengo idea de c[omo implementar eso a[un ¯\\_(ツ)_/¯')
+            self.restart_engine
         )
         self.restart_layout.addStretch()
         self.restart_layout.addWidget(self.restart_label)
         self.restart_layout.addWidget(self.restart_button)
         self.restart_widget = QWidget()
         self.restart_widget.setLayout(self.restart_layout)
+        self.restart_widget.hide()
 
         layout.addWidget(title)
         layout.addWidget(filters)
@@ -161,7 +178,6 @@ class SettingsPage(QWidget):
         checkbox.setChecked(
             self.settings.get(section, key)
         )
-
         checkbox.toggled.connect(
             lambda checked:
             self.settings.set(
@@ -189,13 +205,14 @@ class SettingsPage(QWidget):
                 text='Los detectores dejaran de percibir actividad'
             )
             if confirmed:
-                self.pause_engine.setText("Reanudar el motor")
                 self.settings.set(
                     not status,
                     "monitoring",
                     "on_paused"
                 )
                 self.engine_paused.emit(not status)
+                self.pause_engine.setText("Reanudar el motor")
+                SweetAlert.alert(self,'Hecho','El sistema está en pausa','info')
         else:
             self.pause_engine.setText("Pausar el motor")
             self.settings.set(
@@ -204,6 +221,7 @@ class SettingsPage(QWidget):
                 "on_paused"
             )
             self.engine_paused.emit(not status)
+            SweetAlert.alert(self,'Hecho','El monitoreo ha sido restablecido','success')
 
     def change_theme(self, *_):
 
@@ -214,8 +232,23 @@ class SettingsPage(QWidget):
             "ui",
             "theme"
         )
-
+        self.icon_manager = IconManager(self.settings)
+        self.restart_button.setIcon(self.icon_manager.get('arrow-path'))
         if self.app is not None:
             self.app.qt_app.setStyleSheet(load_stylesheet(theme))
 
+
         self.theme_changed.emit()
+
+    def compare_changes(self):
+        values = []
+        for option in self.options:
+            values.append(1 if option.isChecked() else 0)
+        if values == self.values:
+            self.restart_widget.hide()
+        else:
+            self.restart_widget.show()
+
+    def restart_engine(self):
+        self.restart_detectors.emit(True)
+

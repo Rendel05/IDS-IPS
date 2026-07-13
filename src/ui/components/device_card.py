@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
 
-from ui.components.device_row import DeviceRow
+from ui.components.device_row import device_row
 
 
 class DeviceCard(QWidget):
@@ -17,7 +17,7 @@ class DeviceCard(QWidget):
             return
 
         for mac, info in devices.items():
-            self.layout.addWidget(DeviceRow(mac, info))
+            self.layout.addWidget(device_row(mac, info))
 
     def clear(self):
         while self.layout.count():

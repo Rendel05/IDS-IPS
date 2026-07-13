@@ -1,8 +1,6 @@
-from time import sleep
-
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QTableView, QPushButton
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QTableView, QPushButton, QScrollArea
 
 from services.icons_manager import IconManager
 from services.settings_manager import SettingsManager
@@ -43,9 +41,16 @@ class NetworkPage(QWidget):
         device_title.setProperty('class', 'card_title')
         devices_layout.addWidget(device_title)
         devices_layout.addWidget(self.devices)
+        devices_layout.addStretch()
         devices = QWidget()
         devices.setLayout(devices_layout)
         devices.setProperty('class', 'content_card')
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(devices)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         refresh_layout = QHBoxLayout()
         self.refresh_label = QLabel("Escanear de nuevo")
@@ -59,9 +64,8 @@ class NetworkPage(QWidget):
         refresh_widget.setLayout(refresh_layout)
 
         layout.addWidget(title)
-        layout.addWidget(devices)
+        layout.addWidget(scroll)
         layout.addWidget(refresh_widget)
-        layout.addStretch()
 
 
 

@@ -5,7 +5,6 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextBr
 from PySide6.QtCore import Qt
 
 from ui.components.badges import badges
-from ui.components.mini_badge import mini_badge
 from services.pixmaps_manager import PixMapManager
 from services.settings_manager import SettingsManager
 
@@ -16,6 +15,7 @@ class AboutPage(QWidget):
         layout = QVBoxLayout()
         self.settings= SettingsManager()
         self.pixmap_manager= PixMapManager(self.settings)
+        self.theme = self.settings.get('ui','theme')
 
         title_layout = QVBoxLayout()
         title_label = QLabel("Acerca de")
@@ -126,7 +126,7 @@ class AboutPage(QWidget):
         system_content_layout.addWidget(QLabel('Versión'),1,0)
         system_content_layout.addWidget(QLabel('v2.0.0'),1,1)
         system_content_layout.addWidget(QLabel('Fecha de compilación'),2,0)
-        system_content_layout.addWidget(QLabel('POR DEFINIR'),2,1)
+        system_content_layout.addWidget(QLabel('13/07/2026'),2,1)
         system_content_layout.addWidget(QLabel('Desarrollador'),3,0)
         system_content_layout.addWidget(QLabel('SyMEC2026🙀'),3,1)
         system_content_layout.addWidget(QLabel('Licencia'), 4, 0)
@@ -226,12 +226,22 @@ class AboutPage(QWidget):
         credits_tabs6.setLayout(credits_tabs6_layout)
         credits_tabs6.setProperty('class','content_card')
 
+        credits_tabs7_layout = QHBoxLayout()
+        self.npcap_icon = QLabel()
+        pixmap_npcap = QPixmap('assets/npcap_dark.svg' if self.theme == 'dark' else 'assets/npcap_light.svg')
+        self.npcap_icon.setPixmap(pixmap_npcap)
+        credits_tabs7_layout.addWidget(self.npcap_icon)
+        credits_tabs7=QWidget()
+        credits_tabs7.setLayout(credits_tabs7_layout)
+        credits_tabs7.setProperty('class','content_card')
+
         credits_tabs_layout.addWidget(credits_tabs1)
         credits_tabs_layout.addWidget(credits_tabs2)
         credits_tabs_layout.addWidget(credits_tabs3)
         credits_tabs_layout.addWidget(credits_tabs4)
         credits_tabs_layout.addWidget(credits_tabs5)
         credits_tabs_layout.addWidget(credits_tabs6)
+        credits_tabs_layout.addWidget(credits_tabs7)
         credits_tabs_layout.addStretch()
         credits_tabs=QWidget()
         credits_tabs.setLayout(credits_tabs_layout)
@@ -258,6 +268,7 @@ class AboutPage(QWidget):
 
     def change_theme(self):
         self.settings = SettingsManager()
+        self.theme = self.settings.get('ui', 'theme')
         self.pixmap_manager = PixMapManager(self.settings)
         self.pixmap1 = self.pixmap_manager.get('code')
         self.code_icon.setPixmap(self.pixmap1)
@@ -265,3 +276,4 @@ class AboutPage(QWidget):
         self.shield_icon.setPixmap(self.pixmap2)
         self.pixmap3 = self.pixmap_manager.get('terminal')
         self.terminal_icon  .setPixmap(self.pixmap3)
+        self.npcap_icon.setPixmap(QPixmap('assets/npcap_dark.svg' if self.theme == 'dark' else 'assets/npcap_light.svg'))

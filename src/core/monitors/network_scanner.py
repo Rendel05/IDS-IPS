@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import csv
 import scapy.all as scapy
+from scapy.error import Scapy_Exception
 import ipaddress
 
 
@@ -45,7 +46,6 @@ class NetworkScanner:
         self.oui_map = _load_oui_database()
 
     def scan(self, timeout=2) -> dict:
-
         network = self._get_network_range()
         if not network:
             return self.get_snapshot()
@@ -55,7 +55,14 @@ class NetworkScanner:
         except Exception:
             gateway_ip = None
 
-        answered, _ = scapy.arping(network, timeout=timeout, verbose=False)
+        try:
+            answered, _ = scapy.arping(
+                network,
+                timeout=timeout,
+                verbose=False
+            )
+        except (Scapy_Exception, OSError):
+            return self.get_snapshot()
 
         for _, received in answered:
             ip = received.psrc

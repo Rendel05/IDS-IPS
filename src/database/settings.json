@@ -1,6 +1,6 @@
 {
     "general": {
-        "launch_on_startup": true
+        "launch_on_startup": false
     },
     "notifications": {
         "enabled": true
@@ -11,7 +11,7 @@
     "monitoring": {
         "refresh_interval_seconds": 60,
         "max_alerts": 1000,
-        "on_paused": true
+        "on_paused": false
     },
     "detectors": {
         "icmp_flood": true,

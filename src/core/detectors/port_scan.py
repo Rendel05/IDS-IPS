@@ -13,7 +13,7 @@ class ScanDetector:
         settings=None,
         alert_callback=None,
         updater=None,
-        port_threshold=15,
+        port_threshold=20,
         window_seconds=10,
         alert_cooldown=900
     ):
@@ -47,6 +47,16 @@ class ScanDetector:
         if source_ip in IP_IGNORE_LIST:
             return
 
+        # if not ip_address(source_ip).is_private:
+        #     return
+
+        if packet_info.get("protocol") != 6: #6 == TCP
+            return
+
+        flags = packet_info.get("flags")
+
+        if flags != "S":
+            return
 
         flow = (source_ip, destination_ip)
 

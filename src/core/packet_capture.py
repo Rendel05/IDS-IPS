@@ -1,5 +1,6 @@
 import time
 from scapy.all import sniff
+from scapy.error import Scapy_Exception
 from scapy.layers.inet import IP, ICMP, TCP, UDP
 from threading import Thread, Event
 
@@ -35,12 +36,19 @@ class PacketCapture:
     def _capture_loop(self):
 
         while not self._stop_event.is_set():
-            sniff(
-                filter=self.bpf_filter,
-                prn=self.process_packet,
-                store=False,
-                timeout=1
-            )
+            try:
+                sniff(
+                    filter=self.bpf_filter,
+                    prn=self.process_packet,
+                    store=False,
+                    timeout=1
+                )
+
+            except (OSError, Scapy_Exception) as e:
+                print(f"[ERROR]: {e}")
+
+                if not self._stop_event.wait(5):
+                    continue
 
     def process_packet(self, packet):
 
@@ -66,5 +74,6 @@ class PacketCapture:
 
         if ICMP in packet:
             packet_info["icmp_type"] = packet[ICMP].type
+
 
         self.callback(packet_info)

@@ -62,7 +62,7 @@ class DonutChart(FigureCanvasQTAgg):
                 theta1=0,
                 theta2=360,
                 width=0.35,
-                facecolor="#353535",
+                facecolor="#b3b9c0",
                 edgecolor=self.theme,
                 linewidth=2,
             )

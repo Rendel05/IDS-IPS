@@ -1,4 +1,3 @@
-import os
 import subprocess
 import sys
 
@@ -65,7 +64,7 @@ class Application:
             self.device_monitor
         ]
 
-        # ----------------- Detectores -----------------
+        # ----------------- Detectors -----------------
 
         self.icmp_detector = ICMPFloodDetector(
             self.settings,
@@ -167,7 +166,6 @@ class Application:
     # ------------------------------------------------
 
     def start(self):
-        print("It's running")
         self.window.show()
 
         self.packet_capture.start()
@@ -178,7 +176,6 @@ class Application:
     # ------------------------------------------------
 
     def stop(self):
-        print('shit')
         self.packet_capture.stop()
 
         for monitor in self.monitors:
@@ -187,7 +184,6 @@ class Application:
     # ------------------------------------------------
 
     def restart_app(self):
-        print('Fuck it')
         subprocess.Popen([sys.executable, *sys.argv])
         QApplication.quit()
 

@@ -1,85 +1,33 @@
 from collections import defaultdict, deque
 from ipaddress import ip_address
-from statistics import mean, pstdev
+from statistics import mean, median, pstdev
 
 from services.toast_manager import show_toast
 
-
-#Lista de IP comunes, si alguien retoma esto en el futuro que encuentre una forma más elegante de solucionar esto, Pedro M.
-
-IP_IGNORE_LIST = [
-    "192.178.220.188",
-    "172.64.148.235",
-    "172.64.155.209",
-    "142.251.186.188",
-    "173.194.208.188",
-    "192.178.56.170",
-    "151.101.2.137",
-    "104.18.39.21",
-    "224.0.1.187",
-    "108.156.224.11",
-    '192.178.52.170',
-    '142.251.186.188',
-    '192.178.220.188',
-    '104.18.37.228',
-    '35.190.80.1',
-    '224.0.0.252',
-    '192.178.56.74',
-    '172.64.150.28',
-    '192.178.56.74',
-    '172.64.148.235',
-    '192.178.52.138',
-    '192.178.56.202',
-    '142.250.189.10',
-    '34.100.128.0',
-    '224.0.0.1',
-    '224.0.0.251',
-    '142.250.189.10',
-    '34.54.194.141',
-    '142.251.152.119',
-    '142.251.116.188',
-    '34.36.57.103',
-    '185.199.109.133',
-    '34.160.81.0',
-    '192.178.57.10',
-    '142.250.114.188',
-    '162.159.134.234',
-    '142.251.45.42',
-    '104.18.32.47',
-    '104.18.32.47',
-    '162.159.138.232',
-    '104.18.32.47',
-    '142.251.46.10',
-    '142.250.177.10',
-    '172.67.160.146',
-    '104.21.44.219',
-    '23.227.38.33',
-    '23.227.39.20',
-    '142.251.219.202',
-    '192.178.57.42',
-    '142.250.65.202',
-    '192.178.52.202',
-    '192.178.56.234',
-    '142.250.115.188',
-    '104.26.6.219',
-    '192.178.56.42',
-    '192.178.52.234 ',
-    '192.178.56.106',
-    '140.82.114.25',
-    '142.250.113.188',
-    '185.199.110.215'
-]
-
 class BeaconDetector:
+
+
+    _EXCLUDED_PROTOCOL = {17,}
+    _EXCLUDED_PORT = { 53, 123}
+
+    _MIN_CYCLES_FOR_WINDOW = 5
 
     def __init__(
         self,
         settings=None,
         alert_callback=None,
-        updater = None,
-        packet_threshold=8,
+        updater=None,
+        packet_threshold=30,
         max_deviation=0.5,
-        alert_cooldown=900
+        alert_cooldown=900,
+        max_cv=0.10,
+        min_observation_window=300,
+        include_dst_port_in_key=False,
+        max_size_cv=0.20,
+        max_avg_packet_size=1000,
+        min_suspicious_count=3,
+        inactive_flow_ttl=86400,
+        cleanup_interval=300,
     ):
         self.settings = settings
         self.alert_callback = alert_callback
@@ -89,11 +37,24 @@ class BeaconDetector:
         self.max_deviation = max_deviation
         self.alert_cooldown = alert_cooldown
 
+        self.max_cv = max_cv
+        self.min_observation_window = min_observation_window
+        self.include_dst_port_in_key = include_dst_port_in_key
+        self.max_size_cv = max_size_cv
+        self.max_avg_packet_size = max_avg_packet_size
+        self.min_suspicious_count = min_suspicious_count
+        self.inactive_flow_ttl = inactive_flow_ttl
+        self.cleanup_interval = cleanup_interval
+
+        self.suspicious_counts = defaultdict(int)
+
+
         self.traffic_history = defaultdict(
             lambda: deque(maxlen=self.packet_threshold)
         )
 
         self.last_alert = {}
+        self._last_cleanup = 0
 
     def process(self, packet_info):
 
@@ -109,74 +70,143 @@ class BeaconDetector:
         if not destination_ip or not source_ip:
             return
 
-        try:
-            if ip_address(destination_ip).is_private:
-                return
-        except ValueError:
+        current_time = packet_info.get("timestamp")
+
+        if current_time is None:
             return
 
-        if destination_ip in IP_IGNORE_LIST: #Una lista de IP hardcodeada
+        self._cleanup_inactive_flows(current_time)
+
+        if (
+                ip_address(destination_ip).is_private or
+                ip_address(destination_ip).is_multicast or
+                ip_address(destination_ip).is_loopback or
+                ip_address(destination_ip).is_link_local or
+                ip_address(destination_ip).is_unspecified
+        ):
             return
 
 
-        flow = (
-            packet_info["src_ip"],
-            packet_info["dst_ip"],
-            packet_info.get("dst_port"),
-            packet_info["protocol"]
-        )
+        if packet_info.get('dst_port') in self._EXCLUDED_PORT:
+            return
 
-        current_time = packet_info["timestamp"]
+        flow = self._build_flow_key(packet_info, source_ip, destination_ip)
+        packet_size = packet_info.get("length", 0)
 
         history = self.traffic_history[flow]
-        history.append(current_time)
+        history.append((current_time, packet_size))
 
         if len(history) < self.packet_threshold:
             return
 
-        deltas = [
-            history[i] - history[i - 1]
-            for i in range(1, len(history))
-        ]
-        average_interval = mean(deltas)
-        standard_deviation = pstdev(deltas)
+        timestamps = [entry[0] for entry in history]
+        sizes = [entry[1] for entry in history]
 
-        if average_interval <= 1:
+        observation_window = timestamps[-1] - timestamps[0]
+
+
+        deltas = [
+            timestamps[i] - timestamps[i - 1]
+            for i in range(1, len(timestamps))
+        ]
+
+        average_interval = mean(deltas)
+        median_interval = median(deltas)
+
+        if average_interval <= 0 or median_interval <= 0:
             return
 
-        if standard_deviation >= self.max_deviation:
+        required_window = max(
+            180,
+            median_interval * 5
+        )
+
+        if observation_window < required_window:
+            return
+
+        standard_deviation = pstdev(deltas)
+        cv_mean = standard_deviation / average_interval
+
+        mad = median([abs(delta - median_interval) for delta in deltas])
+        cv_median = mad / median_interval
+
+        interval_is_regular = (
+            cv_mean <= self.max_cv and cv_median <= self.max_cv
+        )
+
+        average_size = mean(sizes)
+        size_is_regular = True
+        looks_like_bulk_transfer = False
+
+        if average_size > 0:
+            size_deviation = pstdev(sizes)
+            size_cv = size_deviation / average_size
+            size_is_regular = size_cv <= self.max_size_cv
+
+        is_periodic_candidate = (
+            interval_is_regular
+            and size_is_regular
+            and not looks_like_bulk_transfer
+        )
+
+        if not is_periodic_candidate:
+            self.suspicious_counts[flow] = 0
+            return
+
+        self.suspicious_counts[flow] += 1
+
+        if self.suspicious_counts[flow] < self.min_suspicious_count:
             return
 
         last_detection = self.last_alert.get(flow)
 
         if (
-            last_detection and
-            current_time - last_detection < self.alert_cooldown
+            last_detection is not None
+            and current_time - last_detection < self.alert_cooldown
         ):
             return
 
         self.last_alert[flow] = current_time
 
         if self.alert_callback:
-            #testing, remove later
-            print(
-                'BEACON |'
-                f"{destination_ip} | "
-                f"avg={average_interval:.2f} "
-                f"std={standard_deviation:.3f} "
-                f"count={len(history)}"
-            )
-
             self.alert_callback(
-                severity="Crítica",
+                severity="Alta",
                 category="Beaconing",
                 description=(
-                    f"Patrón de beaconing con un intervalo promedio de {average_interval:.2f}s detectado hacia {destination_ip} "
+                    f"Patrón de beaconing con un intervalo promedio de "
+                    f"{average_interval:.2f}s detectado hacia {destination_ip} "
                 )
             )
-            self.updater.beacon_emit()
-            show_toast('Beacon',f"Patrón de beaconing detectado hacia {destination_ip}")
+            if self.updater:
+                self.updater.beacon_emit()
+            show_toast('Beacon', f"Patrón de beaconing detectado hacia {destination_ip}")
 
+    def _build_flow_key(self, packet_info, source_ip, destination_ip):
+        if self.include_dst_port_in_key:
+            return (
+                source_ip,
+                destination_ip,
+                packet_info.get("dst_port"),
+                packet_info["protocol"],
+            )
+
+        return source_ip, destination_ip, packet_info["protocol"]
+
+    def _cleanup_inactive_flows(self, current_time):
+        if current_time - self._last_cleanup < self.cleanup_interval:
+            return
+
+        self._last_cleanup = current_time
+
+        inactive_flows = [
+            flow for flow, history in self.traffic_history.items()
+            if history and current_time - history[-1][0] > self.inactive_flow_ttl
+        ]
+
+        for flow in inactive_flows:
+            self.traffic_history.pop(flow, None)
+            self.last_alert.pop(flow, None)
+            self.suspicious_counts.pop(flow, None)
 
     def _is_paused(self):
         return self.settings.get(
@@ -189,4 +219,3 @@ class BeaconDetector:
             "detectors",
             "beaconing"
         )
-

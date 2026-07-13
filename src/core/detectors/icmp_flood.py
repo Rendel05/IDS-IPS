@@ -28,13 +28,16 @@ class ICMPFloodDetector:
 
         self.icmp_counter[src_ip].append(current_time)
 
+        #Test values, modify later
+
         self.icmp_counter[src_ip] = [
             ts
             for ts in self.icmp_counter[src_ip]
             if current_time - ts < 10
         ]
 
-        if len(self.icmp_counter[src_ip]) > 3: #Valores de prueba
+        if len(self.icmp_counter[src_ip]) > 3:
+
 
             if src_ip in self.active_alerts:
                 return

@@ -8,6 +8,7 @@ class GlobalUpdater(QObject):
     scan_signal = Signal(str)
     beacon_signal = Signal(str)
     device_signal = Signal(str)
+    device_off = Signal(str)
 
 
     def __init__(self):
@@ -30,6 +31,9 @@ class GlobalUpdater(QObject):
 
     def device_emit(self):
         self.device_signal.emit('device')
+
+    def device_off_emit(self):
+        self.device_off.emit('off')
 
 
 

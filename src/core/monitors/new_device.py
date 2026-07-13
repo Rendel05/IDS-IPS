@@ -335,7 +335,7 @@ class DeviceMonitor:
                     continue
 
                 if turned_off:
-                    self.updater.device_emit()
+                    self.updater.device_off_emit()
                     continue
 
                 if not self.alert_callback:

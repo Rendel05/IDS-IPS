@@ -55,4 +55,4 @@ class DonutLabel(QWidget):
             else:
                 percentage = 0.0
 
-            self.percentage_labels[i].setText(f"({percentage:.2f}%)")
+            self.percentage_labels[i].setText(f"({percentage:.0f}%)")

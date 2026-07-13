@@ -85,7 +85,7 @@ class SettingsPage(QWidget):
         filters_layout.addWidget(filters_description)
         filters_layout.addWidget(self.icmp)
         filters_layout.addWidget(self.ip_change)
-        filters_layout.addWidget(self.sniffer)
+        #filters_layout.addWidget(self.sniffer)
         filters_layout.addWidget(self.nmap)
         filters_layout.addWidget(self.new_port)
         filters_layout.addWidget(self.beaconing)

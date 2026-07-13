@@ -159,6 +159,9 @@ class MainWindow(QWidget):
         self.app.updater.device_signal.connect(
             self.devices_page.refresh
         )
+        self.app.updater.device_off.connect(
+            self.devices_page.refresh
+        )
         self.settings_page = SettingsPage(self.app)
         self.settings_page.theme_changed.connect(
             self.refresh_icons

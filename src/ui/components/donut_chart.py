@@ -18,8 +18,8 @@ class DonutChart(FigureCanvasQTAgg):
     def __init__(self, theme,values):
         self.theme = theme
         self.current_values = values
-        #self.current_values = [10,20,30,40]
-        self.text_color = '#5A6472' if self.theme == "dark" else "#99A2AB"
+        #self.current_values = [10,20,30,40] #testing
+        self.text_color = '#5A6472' if self.theme != "#FFFFFF" else "#99A2AB"
 
         self.figure = Figure(facecolor="none")
         super().__init__(self.figure)
@@ -40,9 +40,6 @@ class DonutChart(FigureCanvasQTAgg):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        w = self.width() / self.figure.dpi
-        h = self.height() / self.figure.dpi
-        self.figure.set_size_inches(w, h, forward=False)
         self.draw_idle()
 
     def update_theme(self, new_theme):

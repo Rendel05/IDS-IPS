@@ -57,7 +57,7 @@ class DashboardPage(QWidget):
 
 
         # Acá inician los organizadores gráficos
-        # Gráfica de toro
+        #------------------------------------------------Gráfica de toro
 
         charts_layout = QHBoxLayout()
 

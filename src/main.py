@@ -26,6 +26,8 @@ class Application:
 
     def __init__(self, qt_app: QApplication):
         self.qt_app = qt_app
+        self.qt_app.setWindowIcon(QIcon('assets/node.ico'))
+
 
         # ----------------- Services -----------------
 

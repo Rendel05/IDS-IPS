@@ -31,11 +31,6 @@ class LineChart(FigureCanvasQTAgg):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-
-        w = self.width() / self.figure.dpi
-        h = self.height() / self.figure.dpi
-
-        self.figure.set_size_inches(w, h, forward=False)
         self.draw_idle()
 
     def update_theme(self, new_theme):

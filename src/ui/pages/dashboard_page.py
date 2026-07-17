@@ -1,15 +1,12 @@
-from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QGridLayout, QTableWidget, QTableWidgetItem, \
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QTableWidget, \
     QHeaderView, QAbstractItemView, QSizePolicy
-from PySide6.QtCore import Qt
 
 from services.database_manager import DatabaseManager
-from ui.components.critical_tab import CriticsAlertsCard
 from ui.components.line_chart import LineChart
-from ui.components.total_tab import TotalAlertsCard
 from ui.components.donut_chart import DonutChart
 from ui.components.donut_label import DonutLabel
 from ui.delegates.alerts_table_manager import RecentAlertsController
+from ui.components.stats_tab import StatsCard
 
 
 class DashboardPage(QWidget):
@@ -38,12 +35,14 @@ class DashboardPage(QWidget):
         #Layout de la tarjeta 'Alertas Totales'
 
         self.total_alerts = QWidget()
-        self.total_alerts_controller = TotalAlertsCard(self.total_alerts,self.db.get_alert_summary())
+        #self.total_alerts_controller = TotalAlertsCard(self.total_alerts,self.db.get_alert_summary())
+        self.total_alerts_controller = StatsCard(self.total_alerts,self.db.get_alert_summary(),'total')
 
         #Layout para la tarjeta 'Alertas Críticas'
 
         self.critics_alerts = QWidget()
-        self.critics_controller = CriticsAlertsCard(self.critics_alerts,self.db.get_alert_summary())
+        #self.critics_controller = CriticsAlertsCard(self.critics_alerts,self.db.get_alert_summary())
+        self.critics_controller = StatsCard(self.critics_alerts,self.db.get_alert_summary(), 'critical')
         #--------------
 
 

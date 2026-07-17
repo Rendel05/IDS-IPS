@@ -2,9 +2,11 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
-RED_CHART = './assets/red-chart.png'
-GRAY_CHART = './assets/gray-chart.svg'
-BLUE_CHART = './assets/blue-chart.svg'
+from services.path_resolver import resource_path
+
+RED_CHART = resource_path('src/assets/red-chart.png')
+GRAY_CHART = resource_path('src/assets/gray-chart.svg')
+BLUE_CHART = resource_path('src/assets/blue-chart.svg')
 
 PATHS = [RED_CHART, GRAY_CHART, BLUE_CHART]
 COLORS = ['higher', 'equal', 'lower']

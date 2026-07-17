@@ -1,5 +1,3 @@
-from platform import system
-
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextBrowser, QTabWidget, QGridLayout
 from PySide6.QtCore import Qt
@@ -7,6 +5,7 @@ from PySide6.QtCore import Qt
 from ui.components.badges import badges
 from services.pixmaps_manager import PixMapManager
 from services.settings_manager import SettingsManager
+from services.path_resolver import resource_path
 
 
 class AboutPage(QWidget):
@@ -160,80 +159,79 @@ class AboutPage(QWidget):
 
         credits_tabs1_layout = QHBoxLayout()
         python_icon = QLabel()
-        pixmap_python = QPixmap('assets/python.svg')
+        pixmap_python = QPixmap(resource_path('src/assets/python.svg'))
         python_icon.setPixmap(pixmap_python)
-        python_text=QLabel('Python 3.14')
+        python_text = QLabel('Python 3.14')
         credits_tabs1_layout.addWidget(python_icon)
         credits_tabs1_layout.addWidget(python_text)
-        credits_tabs1=QWidget()
+        credits_tabs1 = QWidget()
         credits_tabs1.setLayout(credits_tabs1_layout)
-        credits_tabs1.setProperty('class','content_card')
+        credits_tabs1.setProperty('class', 'content_card')
 
         credits_tabs2_layout = QHBoxLayout()
         qt_icon = QLabel()
-        pixmap_qt = QPixmap('assets/Qt.svg')
+        pixmap_qt = QPixmap(resource_path('src/assets/Qt.svg'))
         qt_icon.setPixmap(pixmap_qt)
-        qt_text=QLabel('PySide6')
+        qt_text = QLabel('PySide6')
         credits_tabs2_layout.addWidget(qt_icon)
         credits_tabs2_layout.addWidget(qt_text)
-        credits_tabs2=QWidget()
+        credits_tabs2 = QWidget()
         credits_tabs2.setLayout(credits_tabs2_layout)
-        credits_tabs2.setProperty('class','content_card')
-
+        credits_tabs2.setProperty('class', 'content_card')
 
         credits_tabs3_layout = QHBoxLayout()
         scapy_icon = QLabel()
-        pixmap_scapy = QPixmap('assets/scapy.svg')
+        pixmap_scapy = QPixmap(resource_path('src/assets/scapy.svg'))
         scapy_icon.setPixmap(pixmap_scapy)
-        scapy_text=QLabel('Scapy')
+        scapy_text = QLabel('Scapy')
         credits_tabs3_layout.addWidget(scapy_icon)
         credits_tabs3_layout.addWidget(scapy_text)
-        credits_tabs3=QWidget()
+        credits_tabs3 = QWidget()
         credits_tabs3.setLayout(credits_tabs3_layout)
-        credits_tabs3.setProperty('class','content_card')
-
+        credits_tabs3.setProperty('class', 'content_card')
 
         credits_tabs4_layout = QHBoxLayout()
         sqlite_icon = QLabel()
-        pixmap_sqlite = QPixmap('assets/sqlite.svg')
+        pixmap_sqlite = QPixmap(resource_path('src/assets/sqlite.svg'))
         sqlite_icon.setPixmap(pixmap_sqlite)
-        sqlite_text=QLabel('SQLite')
+        sqlite_text = QLabel('SQLite')
         credits_tabs4_layout.addWidget(sqlite_icon)
         credits_tabs4_layout.addWidget(sqlite_text)
-        credits_tabs4=QWidget()
+        credits_tabs4 = QWidget()
         credits_tabs4.setLayout(credits_tabs4_layout)
-        credits_tabs4.setProperty('class','content_card')
+        credits_tabs4.setProperty('class', 'content_card')
 
         credits_tabs5_layout = QHBoxLayout()
         numpy_icon = QLabel()
-        pixmap_numpy = QPixmap('assets/numpy.svg')
+        pixmap_numpy = QPixmap(resource_path('src/assets/numpy.svg'))
         numpy_icon.setPixmap(pixmap_numpy)
-        numpy_text=QLabel('NumPy')
+        numpy_text = QLabel('NumPy')
         credits_tabs5_layout.addWidget(numpy_icon)
         credits_tabs5_layout.addWidget(numpy_text)
-        credits_tabs5=QWidget()
+        credits_tabs5 = QWidget()
         credits_tabs5.setLayout(credits_tabs5_layout)
-        credits_tabs5.setProperty('class','content_card')
+        credits_tabs5.setProperty('class', 'content_card')
 
         credits_tabs6_layout = QHBoxLayout()
         psutil_icon = QLabel()
-        pixmap_psutil = QPixmap('assets/psutil.svg')
+        pixmap_psutil = QPixmap(resource_path('src/assets/psutil.svg'))
         psutil_icon.setPixmap(pixmap_psutil)
-        psutil_text=QLabel('Psutil')
+        psutil_text = QLabel('Psutil')
         credits_tabs6_layout.addWidget(psutil_icon)
         credits_tabs6_layout.addWidget(psutil_text)
-        credits_tabs6=QWidget()
+        credits_tabs6 = QWidget()
         credits_tabs6.setLayout(credits_tabs6_layout)
-        credits_tabs6.setProperty('class','content_card')
+        credits_tabs6.setProperty('class', 'content_card')
 
         credits_tabs7_layout = QHBoxLayout()
         self.npcap_icon = QLabel()
-        pixmap_npcap = QPixmap('assets/npcap_dark.svg' if self.theme == 'dark' else 'assets/npcap_light.svg')
+        npcap_name = 'npcap_dark.svg' if self.theme == 'dark' else 'npcap_light.svg'
+        pixmap_npcap = QPixmap(resource_path(f'src/assets/{npcap_name}'))
         self.npcap_icon.setPixmap(pixmap_npcap)
         credits_tabs7_layout.addWidget(self.npcap_icon)
-        credits_tabs7=QWidget()
+        credits_tabs7 = QWidget()
         credits_tabs7.setLayout(credits_tabs7_layout)
-        credits_tabs7.setProperty('class','content_card')
+        credits_tabs7.setProperty('class', 'content_card')
 
         credits_tabs_layout.addWidget(credits_tabs1)
         credits_tabs_layout.addWidget(credits_tabs2)
@@ -276,4 +274,5 @@ class AboutPage(QWidget):
         self.shield_icon.setPixmap(self.pixmap2)
         self.pixmap3 = self.pixmap_manager.get('terminal')
         self.terminal_icon  .setPixmap(self.pixmap3)
-        self.npcap_icon.setPixmap(QPixmap('assets/npcap_dark.svg' if self.theme == 'dark' else 'assets/npcap_light.svg'))
+        npcap_name = 'npcap_dark.svg' if self.theme == 'dark' else 'npcap_light.svg'
+        self.npcap_icon.setPixmap(QPixmap(resource_path(f'src/assets/{npcap_name}')))

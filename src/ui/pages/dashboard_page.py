@@ -35,13 +35,11 @@ class DashboardPage(QWidget):
         #Layout de la tarjeta 'Alertas Totales'
 
         self.total_alerts = QWidget()
-        #self.total_alerts_controller = TotalAlertsCard(self.total_alerts,self.db.get_alert_summary())
         self.total_alerts_controller = StatsCard(self.total_alerts,self.db.get_alert_summary(),'total')
 
         #Layout para la tarjeta 'Alertas Críticas'
 
         self.critics_alerts = QWidget()
-        #self.critics_controller = CriticsAlertsCard(self.critics_alerts,self.db.get_alert_summary())
         self.critics_controller = StatsCard(self.critics_alerts,self.db.get_alert_summary(), 'critical')
         #--------------
 

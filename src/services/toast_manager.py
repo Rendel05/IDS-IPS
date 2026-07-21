@@ -1,13 +1,13 @@
 from win11toast import toast
-from pathlib import Path
 
 from services.settings_manager import SettingsManager
+from services.path_resolver import resource_path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-icon_path = BASE_DIR / "assets" / "node_toast.png"
+ICON_PATH = resource_path('src/assets/node_toast.png')
+APP_ID = 'IDS/IPS.app'
 
 
-def show_toast(title:str,body:str):
+def show_toast(title: str, body: str):
     auth = SettingsManager().get('notifications', 'enabled')
     if not auth:
         return
@@ -15,6 +15,6 @@ def show_toast(title:str,body:str):
     toast(
         title=title,
         body=body,
-        icon=f'{icon_path}',
-        app_id='IDS/IPS'
+        icon=ICON_PATH,
+        app_id=APP_ID
     )

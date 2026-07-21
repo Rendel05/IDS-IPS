@@ -1,4 +1,5 @@
 from collections import defaultdict
+import socket
 
 from services.toast_manager import show_toast
 
@@ -11,6 +12,8 @@ class ICMPFloodDetector:
         self.icmp_counter = defaultdict(list)
         self.active_alerts = set()
         self.updater = updater
+        self.local_ip = socket.gethostbyname(socket.gethostname())
+        self.updater.ip_signal.connect(self._refresh_ip)
 
     def process(self, packet_info):
 
@@ -25,6 +28,9 @@ class ICMPFloodDetector:
 
         src_ip = packet_info["src_ip"]
         current_time = packet_info["timestamp"]
+
+        if src_ip == self.local_ip:
+            return
 
         self.icmp_counter[src_ip].append(current_time)
 
@@ -58,4 +64,9 @@ class ICMPFloodDetector:
 
     def _icmp_flood_enabled(self):
         return self.settings.get('detectors','icmp_flood')
+
+    def _refresh_ip(self):
+        self.local_ip = socket.gethostbyname(socket.gethostname())
+        self.icmp_counter.clear()
+        self.active_alerts.clear()
 

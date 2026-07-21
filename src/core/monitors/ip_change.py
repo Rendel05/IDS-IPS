@@ -84,10 +84,10 @@ class IPMonitor:
                 if self.alert_callback:
                     self.alert_callback(
                         severity="Baja",
-                        category="DHCP Change",
+                        category="IP Change",
                         description=(
-                            f"Cambio de IP detectado: "
-                            f"Anterior={self.current_ip} → Nueva={ip_address}"
+                            f"Cambio de IP detectado,"
+                            f" anterior: {self.current_ip} → nueva: {ip_address}"
                         )
                     )
 

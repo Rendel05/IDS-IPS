@@ -1,8 +1,6 @@
-from PySide6 import QtGui
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QStackedWidget, QApplication
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QStackedWidget
 from PySide6.QtCore import Qt
-from PIL import Image
 
 from ui.pages.devices_page import DevicesPage
 from ui.pages.settings_page import SettingsPage
@@ -25,8 +23,6 @@ class MainWindow(QWidget):
     def __init__(self, app):
         super().__init__()
         self.setWindowTitle("IDS/IPS")
-        img = Image.open("assets/node.png")
-        img.save("assets/node.ico", sizes=[(16, 16), (32, 32), (48, 48), (256, 256)])
         self.resize(1100, 730)
         self.setMinimumSize(1100, 730)
         self.setMaximumSize(1100, 730)

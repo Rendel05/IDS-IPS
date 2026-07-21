@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets
+from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QLabel, QWidget
 
 from services.database_manager import DatabaseManager
@@ -28,13 +28,13 @@ class AlertDetails:
             "Valide la legitimidad de la conexión y supervise su comportamiento."
         ),
 
-        "DHCP Change": (
-            "Se detectó una reasignación de dirección IP mediante DHCP. "
+        "IP Change": (
+            "Se detectó una reasignación de dirección IP. "
             "Verifique que el cambio sea esperado y que no existan conflictos en la red."
         ),
 
-        "DHCP change": (
-            "Se detectó una reasignación de dirección IP mediante DHCP. "
+        "ip change": (
+            "Se detectó una reasignación de dirección IP. "
             "Verifique que el cambio sea esperado y que no existan conflictos en la red."
         ),
 
@@ -59,18 +59,38 @@ class AlertDetails:
         self.rule_label = QLabel('<strong>Firma/Regla:</strong>')
         self.rule = QLabel('')
         self.rule.setWordWrap(True)
+        self.rule.setTextInteractionFlags(
+            Qt.TextSelectableByMouse |
+            Qt.TextSelectableByKeyboard
+        )
         self.description_label = QLabel('<strong>Descripción:</strong>')
         self.description = QLabel('')
         self.description.setWordWrap(True)
-        self.source_label = QLabel('<strong>Origen:</strong>')
+        self.description.setTextInteractionFlags(
+            Qt.TextSelectableByMouse |
+            Qt.TextSelectableByKeyboard
+        )
+        self.source_label = QLabel('<strong>Origen/Destino:</strong>')
         self.source = QLabel('')
         self.source.setWordWrap(True)
+        self.source.setTextInteractionFlags(
+            Qt.TextSelectableByMouse |
+            Qt.TextSelectableByKeyboard
+        )
         self.date_label = QLabel('<strong>Fecha y hora:</strong>')
         self.date = QLabel('')
         self.date.setWordWrap(True)
+        self.date.setTextInteractionFlags(
+            Qt.TextSelectableByMouse |
+            Qt.TextSelectableByKeyboard
+        )
         self.advice_label = QLabel('<strong>Información adicional:</strong>')
         self.advice = QLabel('')
         self.advice.setWordWrap(True)
+        self.advice.setTextInteractionFlags(
+            Qt.TextSelectableByMouse |
+            Qt.TextSelectableByKeyboard
+        )
 
         self.layout.addWidget(self.severity_label)
         self.layout.addWidget(self.severity_badge)

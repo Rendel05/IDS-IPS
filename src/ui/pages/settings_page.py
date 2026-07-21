@@ -1,14 +1,18 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox, QComboBox, QHBoxLayout, QApplication
+import os
+
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox, QComboBox, QHBoxLayout
 from PySide6.QtCore import Signal
 
 from services.icons_manager import IconManager
 from ui.components.button import standard_button
-
 from services.settings_manager import SettingsManager
 from ui.styles.loader import load_stylesheet
 from ui.components.confirm_dialog import SweetAlert
 
 
+def open_settings():
+    os.startfile("ms-settings:startupapps")
+    return
 
 
 class SettingsPage(QWidget):
@@ -49,7 +53,7 @@ class SettingsPage(QWidget):
         self.ip_change = QCheckBox("Reasignación de IP")
         self.ip_change.setChecked(self.settings.get('detectors', 'ip_changes'))
         self.bind_checkbox(self.ip_change, 'detectors', 'ip_changes')
-        self.ip_change.setToolTip('Dectecar un cambio de la IP asignada por el DHCP')
+        self.ip_change.setToolTip('Dectecar un cambio de la IP asignada')
         self.sniffer = QCheckBox("Sniffer detectado")
         self.sniffer.setChecked(self.settings.get('detectors', 'packet_sniffer'))
         self.bind_checkbox(self.sniffer, 'detectors', 'packet_sniffer')
@@ -96,24 +100,45 @@ class SettingsPage(QWidget):
 
         system_status_layout = QVBoxLayout()
         system_status_title = QLabel("Sistema y arranque")
-        self.autostart = QCheckBox("Iniciar el programa automáticamente al arrancar el sistema")
-        self.autostart.setChecked(self.settings.get('general', 'launch_on_startup'))
-        self.bind_checkbox(self.autostart, 'general', 'launch_on_startup')
+
+        layout_autostart = QHBoxLayout()
+        autostart_label = QLabel('Iniciar la aplicación al iniciar el sistema')
+        self.autostart = standard_button('')
+        self.autostart.setIcon(self.icon_manager.get('arrow-top-right-on-square'))
+        self.autostart.clicked.connect(
+            open_settings
+        )
+        layout_autostart.addWidget(self.autostart)
+        layout_autostart.addWidget(autostart_label)
+        layout_autostart.addStretch()
+        widget_autostart = QWidget()
+        widget_autostart.setLayout(layout_autostart)
+        widget_autostart.setContentsMargins( 0, 0, 0, -8)
+
+        layout_pause = QHBoxLayout()
         self.pause_engine = standard_button("")
+        self.pause_engine.setIcon(self.icon_manager.get('pause-circle'))
+        self.pause_label = QLabel('')
         if not self.settings.get('monitoring', 'on_paused'):
-            self.pause_engine.setText('Pausar el motor')
+            self.pause_label.setText('Pausar el motor')
         else:
-            self.pause_engine.setText('Reanudar el motor')
+            self.pause_label.setText('Reanudar el motor')
         self.pause_engine.clicked.connect(
             self.pause_detection
         )
+        layout_pause.addWidget(self.pause_engine)
+        layout_pause.addWidget(self.pause_label)
+        layout_pause.addStretch()
+        layout_widget = QWidget()
+        layout_widget.setLayout(layout_pause)
+        layout_widget.setContentsMargins( 0, -10, 0, 0)
 
         system_status_title.setProperty('class', 'content_title')
 
         system_status_layout.addWidget(system_status_title)
         system_status_layout.addWidget(QLabel('Estado del sistema y configuración de arranque'))
-        system_status_layout.addWidget(self.autostart)
-        system_status_layout.addWidget(self.pause_engine)
+        system_status_layout.addWidget(widget_autostart)
+        system_status_layout.addWidget(layout_widget)
         system_status = QWidget()
         system_status.setLayout(system_status_layout)
         system_status.setProperty('class', 'content_card')
@@ -132,8 +157,8 @@ class SettingsPage(QWidget):
             self.theme.setCurrentIndex(index)
         self.theme.currentIndexChanged.connect(self.save_theme)
         self.theme.currentIndexChanged.connect(self.change_theme)
-        theme_layout.addWidget(QLabel('Cambiar apariencia del sistema'))
         theme_layout.addWidget(self.theme)
+        theme_layout.addWidget(QLabel('Cambiar apariencia del sistema'))
         theme_layout.addStretch()
         theme_widget = QWidget()
         theme_widget.setLayout(theme_layout)
@@ -211,10 +236,10 @@ class SettingsPage(QWidget):
                     "on_paused"
                 )
                 self.engine_paused.emit(not status)
-                self.pause_engine.setText("Reanudar el motor")
+                self.pause_label.setText("Reanudar el motor")
                 SweetAlert.alert(self,'Hecho','El sistema está en pausa','info')
         else:
-            self.pause_engine.setText("Pausar el motor")
+            self.pause_label.setText("Pausar el motor")
             self.settings.set(
                 not status,
                 "monitoring",
@@ -234,6 +259,8 @@ class SettingsPage(QWidget):
         )
         self.icon_manager = IconManager(self.settings)
         self.restart_button.setIcon(self.icon_manager.get('arrow-path'))
+        self.pause_engine.setIcon(self.icon_manager.get('pause-circle'))
+        self.autostart.setIcon(self.icon_manager.get('arrow-top-right-on-square'))
         if self.app is not None:
             self.app.qt_app.setStyleSheet(load_stylesheet(theme))
 

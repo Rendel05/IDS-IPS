@@ -6,9 +6,10 @@ from services.toast_manager import show_toast
 
 class BeaconDetector:
 
-
     _EXCLUDED_PROTOCOL = {17,}
     _EXCLUDED_PORT = { 53, 123}
+    # _EXCLUDED_PROTOCOL = {}
+    # _EXCLUDED_PORT = {}
 
     _MIN_CYCLES_FOR_WINDOW = 5
 

@@ -25,7 +25,6 @@ STATUS_MAPPER = {
 def mini_badge(text, status):
     status_en = STATUS_MAPPER.get(status.lower(), 'low')
 
-    # Quitamos márgenes al layout interno del badge para que no se desfase el texto
     badge_layout = QHBoxLayout()
     badge_layout.setContentsMargins(0, 0, 0, 0)
 

@@ -5,6 +5,7 @@ from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 
 from services.global_updater import GlobalUpdater
+from services.path_resolver import resource_path
 from ui.main_page import MainWindow
 from ui.styles.loader import load_stylesheet
 from services.database_manager import DatabaseManager
@@ -12,9 +13,8 @@ from services.settings_manager import SettingsManager
 from core.packet_capture import PacketCapture
 from core.detection_engine import DetectionEngine
 from services.alerts_manager import AlertManager
-
 from core.detectors.icmp_flood import ICMPFloodDetector
-from core.monitors.dhcp_change import IPMonitor
+from core.monitors.ip_change import IPMonitor
 from core.monitors.new_port import PortMonitor
 from core.detectors.beaconing import BeaconDetector
 from core.monitors.new_device import DeviceMonitor
@@ -26,7 +26,7 @@ class Application:
 
     def __init__(self, qt_app: QApplication):
         self.qt_app = qt_app
-        self.qt_app.setWindowIcon(QIcon('assets/node.ico'))
+        self.qt_app.setWindowIcon(QIcon(resource_path('src/assets/node.ico')))
 
 
         # ----------------- Services -----------------
@@ -123,8 +123,8 @@ class Application:
     def setup_tray(self):
 
         self.tray = QSystemTrayIcon(
-            QIcon("assets/node.png"),
-            self.window
+            QIcon(resource_path('src/assets/node.png')),
+                self.window
         )
 
         self.tray.activated.connect(

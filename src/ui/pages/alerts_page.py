@@ -46,6 +46,7 @@ class AlertsPage(QWidget):
         text_search_layout = QVBoxLayout()
         self.search_area = QLineEdit()
         self.search_area.setPlaceholderText("Buscar por firma o IP...")
+        self.search_area.returnPressed.connect(self.add_filters)
         self.search_area.textChanged.connect(
             self.reset_filters_handler
         )

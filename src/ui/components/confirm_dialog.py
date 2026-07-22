@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
@@ -10,12 +10,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from services.path_resolver import resource_path
+
 
 ICON_PATHS = {
-    "info": "assets/information-circle.svg",
-    "success": "assets/check-circle.svg",
-    "warning": "assets/exclamation-triangle.svg",
-    "danger": "assets/x-circle.svg",
+    "info": resource_path("src/assets/information-circle.svg"),
+    "success": resource_path("src/assets/check-circle.svg"),
+    "warning": resource_path("src/assets/exclamation-triangle.svg"),
+    "danger": resource_path("src/assets/x-circle.svg"),
 }
 
 class SweetAlert:

@@ -1,11 +1,11 @@
 import subprocess
 import sys
+import ctypes
 
 from PySide6.QtGui import QIcon, QAction
-from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
+from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QMessageBox
 
 from services.global_updater import GlobalUpdater
-from services.path_resolver import resource_path
 from ui.main_page import MainWindow
 from ui.styles.loader import load_stylesheet
 from services.database_manager import DatabaseManager
@@ -13,23 +13,30 @@ from services.settings_manager import SettingsManager
 from core.packet_capture import PacketCapture
 from core.detection_engine import DetectionEngine
 from services.alerts_manager import AlertManager
+from services.path_resolver import resource_path
+
 from core.detectors.icmp_flood import ICMPFloodDetector
 from core.monitors.ip_change import IPMonitor
 from core.monitors.new_port import PortMonitor
 from core.detectors.beaconing import BeaconDetector
 from core.monitors.new_device import DeviceMonitor
 from core.detectors.port_scan import ScanDetector
+from services.single_instance import SingleInstance
 
-
+if sys.platform == "win32":
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+        'Symec.idsips.dashboard.1'
+    )
 
 class Application:
 
     def __init__(self, qt_app: QApplication):
         self.qt_app = qt_app
+        self.single_instance = None
+        self._restart_requested = False
+
         self.qt_app.setWindowIcon(QIcon(resource_path('src/assets/node.ico')))
-
-
-        # ----------------- Services -----------------
+        # ----------------- src.services -----------------
 
         self.db = DatabaseManager()
         self.settings = SettingsManager()
@@ -124,7 +131,7 @@ class Application:
 
         self.tray = QSystemTrayIcon(
             QIcon(resource_path('src/assets/node.png')),
-                self.window
+            self.window
         )
 
         self.tray.activated.connect(
@@ -167,8 +174,9 @@ class Application:
 
     # ------------------------------------------------
 
-    def start(self):
-        self.window.show()
+    def start(self, show_window: bool = True):
+        if show_window:
+            self.window.show()
 
         self.packet_capture.start()
 
@@ -186,8 +194,8 @@ class Application:
     # ------------------------------------------------
 
     def restart_app(self):
-        subprocess.Popen([sys.executable, *sys.argv])
-        QApplication.quit()
+        self._restart_requested = True
+        self.qt_app.quit()
 
     def cleanup(self):
 
@@ -195,14 +203,38 @@ class Application:
 
         self.db.close()
 
+        if self.single_instance:
+            self.single_instance.release()
+
+        if self._restart_requested:
+            subprocess.Popen([sys.executable, *sys.argv])
+
 
 def main():
-
     qt_app = QApplication(sys.argv)
 
-    application = Application(qt_app)
+    try:
+        single_instance = SingleInstance("IDS.app", on_second_instance=None)
 
-    application.start()
+        if single_instance.is_running:
+            sys.exit(0)
+
+        application = Application(qt_app)
+    except Exception as e:
+        QMessageBox.critical(
+            None,
+            "Error al iniciar IDS",
+            f"No se pudo iniciar la aplicación:\n\n{e}"
+        )
+        sys.exit(1)
+
+    application.single_instance = single_instance
+    single_instance.on_second_instance = application.window.show_from_tray
+
+    if "--minimized" in sys.argv:
+        application.start(show_window=False)
+    else:
+        application.start()
 
     sys.exit(qt_app.exec())
 

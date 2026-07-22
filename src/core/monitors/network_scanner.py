@@ -5,6 +5,8 @@ import scapy.all as scapy
 from scapy.error import Scapy_Exception
 import ipaddress
 
+from services.path_resolver import resource_path
+
 
 @dataclass
 class Device:
@@ -21,7 +23,7 @@ class Device:
 def _load_oui_database():
     oui_db = {}
     try:
-        with open("database/oui.csv", encoding="utf-8") as file:
+        with open(resource_path("src/database/oui.csv"), encoding="utf-8") as file:
             reader = csv.DictReader(file)
             for row in reader:
                 oui_db[row["Assignment"]] = row["Organization Name"]

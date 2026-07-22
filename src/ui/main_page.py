@@ -2,6 +2,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QStackedWidget
 from PySide6.QtCore import Qt
 
+from services.path_resolver import resource_path
 from ui.pages.devices_page import DevicesPage
 from ui.pages.settings_page import SettingsPage
 from ui.pages.alerts_page import AlertsPage
@@ -39,7 +40,7 @@ class MainWindow(QWidget):
         description_layout = QHBoxLayout()
 
         logo = QLabel()
-        pixmap = QPixmap('assets/node.png')
+        pixmap = QPixmap(resource_path('src/assets/node.png'))
         pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo.setPixmap(pixmap)
 

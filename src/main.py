@@ -145,6 +145,11 @@ class Application:
             self.window
         )
 
+        restart_action = QAction(
+            'Reiniciar',
+            self.window
+        )
+
         exit_action = QAction(
             "Salir",
             self.window
@@ -154,11 +159,17 @@ class Application:
             self.window.show_from_tray
         )
 
+        restart_action.triggered.connect(
+            self.restart_app
+        )
+
         exit_action.triggered.connect(
             QApplication.quit
         )
 
         menu.addAction(show_action)
+        menu.addSeparator()
+        menu.addAction(restart_action)
         menu.addSeparator()
         menu.addAction(exit_action)
 
